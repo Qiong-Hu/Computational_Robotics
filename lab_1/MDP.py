@@ -1,5 +1,6 @@
 # Problem 3(a)
-# Start with an initial policy 
+# Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
+
 policy = {}
 for s in S:
     # Get the vector from the state to the goal
