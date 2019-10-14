@@ -118,6 +118,27 @@ def next_state(s, a, pe):
             p[state] = p_sa(s, a, state, pe)
     return p
 
+# Problem 2(a)
+# Write a function that returns the reward R(s) given input s.
+def reward(s):
+    # Current state s = (x, y, h)
+    # Return: rewards of the current state
+
+    # Border states (Red, marked X)
+    if s[0] == 0 or s[0] == L - 1 or s[1] == 0 or s[1] == W - 1:
+        return -100
+
+    # Lane Markers (Yellow, marked --)
+    elif s[0] == 3 and s[1] in [4, 5, 6]:
+        return -10
+
+    # Goal state (Green, marked *)
+    elif s[0] == 5 and s[1] == 6:
+        return 1
+
+    # Every other state has reward 0
+    else:
+        return 0
 
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
