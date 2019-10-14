@@ -21,8 +21,8 @@ for x in range(L):
         for h in range(12):
             S.append((x, y, h))
 
-# State Space Size Ns
-Ns = len(S)
+# State Space Size NS
+NS = len(S)
 
 # Problem 1(b)
 # Create Action Space A = {a}
@@ -34,8 +34,8 @@ for action in [STILL, FORWARDS, BACKWARDS]:
     else:
         A.append((STILL, NOT_TURN))
 
-# Action Space Size Na
-Na = len(A)
+# Action Space Size NA
+NA = len(A)
 
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
