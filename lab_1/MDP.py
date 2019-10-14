@@ -64,7 +64,7 @@ def err_prob(heading, pe):
 # Probability of state s to new state s', with action a, error probability pe
 def p_sa(s, a, s_, pe):
     # Current state s = (x, y, h) 
-    # Future state s_p = (x_p, y_p, h_p)
+    # Next state s_p = (x_p, y_p, h_p)
     # Given state s_: need to compare with s_p to calculate probability
     # Action a = (motion, turn)
     # Pre-rotate error pe: If the robot moves, it will first rotate by +1 or -1 (mod 12) with probability "pe" before it moves. It will not pre-rotate with probability 1-2*pe. If motion is still, no error. 
@@ -143,55 +143,54 @@ def reward(s):
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
 
-#initial a policy
+# Initial a policy
 def policy_init(S):
-    """
-    initial a policy
-    Args:
-    S:State Space
-    Return:
-    Policy: a dictionary of all the policy
-    """
+    # State Space S = {s}
+    # Return policy: a dictionary of all the policies
+
     policy = {}
+    goal = (5, 6)
     for s in S:
-        # Get the vector from the state to the goal(5,7)
-        dir_vector = [5 - s[0], 6 - s[1]]
-    
-        # already reach goal
+        # Get the vector from the state to the goal
+        dir_vector = [goal[0] - s[0], goal[1] - s[1]]
+
+        # Already reach goal
         if dir_vector == [0, 0]:
             policy[s] = (STILL, NOT_TURN)
-    
-        # Compute the move direction
-        # heading +x, which means h in [2, 3, 4]
+            continue
+
+        # Compute the moving direction -> TODO: can optimize
+        # Heading +x, which means h in [2, 3, 4]
         if s[2] in [2, 3, 4]:
-            #if target is in the right of robot, go forwards, else go backwards 
+            # If target is in the right of robot, go forwards, else go backwards 
             if dir_vector[0] >= 0:
-                action = FORWARDS 
+                motion = FORWARDS 
             else:
-                action = BACKWARDS
-        
-        # heading -x, which means h in [8, 9, 10]
+                motion = BACKWARDS
+
+        # Heading -x, which means h in [8, 9, 10]
         if s[2] in [8, 9, 10]:
-            #if target is in the left of robot, go forwards, else go backwards
+            # If target is in the left of robot, go forwards, else go backwards
             if dir_vector[0]<=0:
-                action = FORWARDS
+                motion = FORWARDS
             else:
-                action = BACKWARDS
-        
-        # heading +y,which means h in [11, 0, 1]
+                motion = BACKWARDS
+
+        # Heading +y,which means h in [11, 0, 1]
         if s[2] in [11, 0, 1]:
-            #if target is in front of robot, go forwards, else go backwards
+            # If target is in front of robot, go forwards, else go backwards
             if dir_vector[1] >= 0:
-                action = FORWARDS 
+                motion = FORWARDS 
             else:
-                action = BACKWARDS
-        # heading -y,which means h in [5,6,7]
+                motion = BACKWARDS
+
+        # Heading -y,which means h in [5,6,7]
         if s[2] in [5, 6, 7]:
-            #if target is in front of robot, go backwards, else go forwards
+            # If target is in front of robot, go backwards, else go forwards
             if dir_vector[1] <= 0:
-                action = FORWARDS
+                motion = FORWARDS
             else:
-                action = BACKWARDS
+                motion = BACKWARDS
 
         # Compute the turn direction
         # get the vector angle theta
@@ -205,7 +204,7 @@ def policy_init(S):
         else:
             turn = TURN_RIGHT
         
-        policy[s] = (action, turn)
+        policy[s] = (motion, turn)
     
     return policy
 
@@ -226,9 +225,9 @@ def generate_trajectory(policy, s0, pe, show=True):
     Return:
         Trajectory including passing states and actions on each state
     """
-   # Confirm the feasibility of pe
-   if (pe <= 0 and pe >=0.5):
-       return ValueError('Invalid error probability Pe. Pe should be between 0 and 0.5.')
+    # Confirm the feasibility of pe
+    if (pe < 0 or pe >0.5):
+        return ValueError('Invalid error probability Pe. Pe should be between 0 and 0.5.')
         
     # Generate the trajectory
     trajectory = []
