@@ -1,6 +1,5 @@
-# Problem 1(a)
 import numpy as np
-# Problem 1(b)
+# Problem 1(a), Problem 1(b)
 # Defining Actions
 STILL = 0
 FORWARD = 1
