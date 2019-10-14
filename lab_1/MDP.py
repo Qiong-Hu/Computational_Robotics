@@ -36,7 +36,7 @@ for action in [STILL, FORWARD, BACKWARD]:
 # Action Space Size Na
 Na = len(A)
 
-'''
+
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
 
@@ -78,4 +78,3 @@ for s in S:
         turn = RIGHT_TURN
         
     policy[s] = (move, turn)
-'''
