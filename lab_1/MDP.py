@@ -143,41 +143,104 @@ def reward(s):
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
 
-policy = {}
-for s in S:
-    # Get the vector from the state to the goal
-    dir_vector = [5-s[0], 7-s[1]]
+#initial a policy
+def policy_init(S):
+    """
+    initial a policy
+    Args:
+    S:State Space
+    Return:
+    Policy: a dictionary of all the policy
+    """
+    policy = {}
+    for s in S:
+        # Get the vector from the state to the goal(5,7)
+        dir_vector = [5 - s[0], 6 - s[1]]
     
-    # already reach goal
-    if dir_vector == [0, 0]:
-        policy[s] = (STILL, NOT_TURN)
+        # already reach goal
+        if dir_vector == [0, 0]:
+            policy[s] = (STILL, NOT_TURN)
     
-    # Compute the move direction
-    # heading +x
-    if s[2] in [2, 3, 4]:
-        action = FORWARDS if (dir_vector[0]>=0 or dir_vector[1]==0) else BACKWARDS
+        # Compute the move direction
+        # heading +x, which means h in [2, 3, 4]
+        if s[2] in [2, 3, 4]:
+            #if target is in the right of robot, go forwards, else go backwards 
+            if dir_vector[0] >= 0:
+                action = FORWARDS 
+            else:
+                action = BACKWARDS
+        
+        # heading -x, which means h in [8, 9, 10]
+        if s[2] in [8, 9, 10]:
+            #if target is in the left of robot, go forwards, else go backwards
+            if dir_vector[0]<=0:
+                action = FORWARDS
+            else:
+                action = BACKWARDS
+        
+        # heading +y,which means h in [11, 0, 1]
+        if s[2] in [11, 0, 1]:
+            #if target is in front of robot, go forwards, else go backwards
+            if dir_vector[1] >= 0:
+                action = FORWARDS 
+            else:
+                action = BACKWARDS
+        # heading -y,which means h in [5,6,7]
+        if s[2] in [5, 6, 7]:
+            #if target is in front of robot, go backwards, else go forwards
+            if dir_vector[1] <= 0:
+                action = FORWARDS
+            else:
+                action = BACKWARDS
 
-    # heading -x
-    if s[2] in [8, 9, 10]:
-        action = FORWARDS if (dir_vector[0]<=0 or dir_vector[1]==0) else BACKWARDS
+        # Compute the turn direction
+        # get the vector angle theta
+        theta = np.arctan2(dir_vector[1], dir_vector[0])*180/np.pi
+        angle_diff = s[2]*30-(90 - theta)
+        #if target is in the left of robot, turn left, if they are in one line, not turn, else turn right 
+        if (angle_diff > 0) and (angle_diff < 180):
+            turn = TURN_LEFT
+        elif (angle_diff == 0.0) or (angle_diff == 180.0):
+            turn = NOT_TURN
+        else:
+            turn = TURN_RIGHT
+        
+        policy[s] = (action, turn)
+    
+    return policy
 
-    # heading +y
-    if s[2] in [11, 0, 1]:
-        action = FORWARDS if (dir_vector[1]>=0 or dir_vector[0]==0) else BACKWARDS
 
-    # heading -y
-    if s[2] in [5, 6, 7]:
-        action = FORWARDS if (dir_vector[1]<=0 or dir_vector[0]==0) else BACKWARDS
+# Problem 3(b)
+#Write a function to generate and plot a trajectory of a robot given policy matrix/array , initial state s0, and error probability pe.
 
-    # Compute the turn direction
-    # get the vetor angle theta
-    theta = np.arctan2(dir_vector[1], dir_vector[0])*180/np.pi
-    angle_diff = s[2]*30-(90 - theta)
-    if (angle_diff > 0) and (angle_diff < 180):
-        turn = TURN_LEFT
-    elif (angle_diff == 0) or (angle_diff == 180):
-        turn = NOT_TURN
-    else:
-        turn = TURN_RIGHT
+def generate_trajectory(policy, s0, pe, show=True):
+    """
+    Generate a trajectory using policy from initial state s0 to the goal and
+    visualize the trajectory on the grid world.
+    
+    Args:
+        policy: a directory of all policy
+        s0 = (x, y, h) : initial state
+        pe: the error probability pe to pre-rotate when choosing to move.
+    
+    Return:
+        Trajectory including passing states and actions on each state
+    """
+   # Confirm the feasibility of pe
+   if (pe <= 0 and pe >=0.5):
+       return ValueError('Invalid error probability Pe. Pe should be between 0 and 0.5.')
+        
+    # Generate the trajectory
+    trajectory = []
+    s_now = s0
+    #the robot keep moving until it reaches target
+    while (s_now[0] !=5 or s_now[1] !=6):
+        #add state and action now in to trajectory
+        traj.append([s_now, policy[s_now]])
+        #get probability of all possible next states
+        P_state = next_state(s_now, policy[s_now], pe)
+        #choose the max possible state to be next
+        state_index = max(P_state.keys())
+        s_next = P_state[state_index]
+        s_now = s_next
 
-    policy[s] = (action, turn)
