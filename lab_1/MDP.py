@@ -37,6 +37,9 @@ for action in [STILL, FORWARDS, BACKWARDS]:
 # Action Space Size NA
 NA = len(A)
 
+# Problem 1(c)
+
+
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
 
