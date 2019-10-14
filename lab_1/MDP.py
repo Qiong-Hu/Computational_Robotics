@@ -36,7 +36,7 @@ Na = len(A)
 policy = {}
 for s in S:
     # Get the vector from the state to the goal
-    dir_vector = [3-s[0], 4-s[1]]
+    dir_vector = [5-s[0], 7-s[1]]
     
     # already reach goal
     if dir_vector == [0, 0]:
