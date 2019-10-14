@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 # Problem 1(a), Problem 1(b)
 # Defining Actions
 STILL = 0
@@ -40,12 +41,7 @@ for s in S:
     
     # already reach goal
     if dir_vector == [0, 0]:
-        policy[s] = (STILL, NO_TURN)
-    
-    #in the wall
-    if (s[0]==0 or 7) or (s[1]==0 or 7):
-        
-    
+        policy[s] = (STILL, NOT_TURN)
     
     # Compute the move direction
     # heading +x
