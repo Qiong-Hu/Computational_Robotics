@@ -105,6 +105,19 @@ def p_sa(s, a, s_, pe):
                 return prob
     return prob
 
+# Problem 1(d)
+# Uses the above function p_sa to return a next state s' given error probability pe, initial state s, and action a. Make sure the returned value s' follows the probability distribution specified by p_sa.
+def next_state(s, a, pe):
+    # Current state s = (x, y, h)
+    # Action a = (move, turn)
+    # Error probability pe: probability to pre-rotate when choosing to move. 0 <= pe <= 0.5
+    # Return result p: a dictionary contains all possible next states with corresponding probability
+    p={}
+    for state in S:
+        if p_sa(s, a, state, pe) > 0:
+            p[state] = p_sa(s, a, state, pe)
+    return p
+
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
 
