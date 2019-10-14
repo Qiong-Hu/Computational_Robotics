@@ -1,3 +1,36 @@
+# Problem 1(a)
+import numpy as np
+# Problem 1(b)
+# Defining Actions
+STILL = 0
+FORWARD = 1
+BACKWARD = -1
+NOT_TURN = 0
+TURN_LEFT = -1
+TURN_RIGHT = 1
+
+# Create State Space S = {s}, s = (x, y, h). Coordinates (x, y) and heading h
+S = []
+for x in range(L):
+    for y in range (W):
+        for h in range(12):
+            S.append((x, y, h))
+
+# State Space Size Ns
+Ns = len(S)
+
+# Create Action Space A = {a}
+A = [];
+for action in [STILL, FORWARD, BACKWARD]:
+    if action != STILL:
+        for turn in [NOT_TURN, TURN_LEFT, TURN_RIGHT]:
+            A.append((action, turn))
+    else:
+        A.append((STILL, NOT_TURN))
+
+# Action Space Size Na
+Na = len(A)
+
 # Problem 3(a)
 # Start with an initial policy 
 policy = {}
