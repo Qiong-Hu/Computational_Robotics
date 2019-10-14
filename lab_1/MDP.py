@@ -41,7 +41,12 @@ for s in S:
     # already reach goal
     if dir_vector == [0, 0]:
         policy[s] = (STILL, NO_TURN)
+    
+    #in the wall
+    if (s[0]==0 or 7) or (s[1]==0 or 7):
         
+    
+    
     # Compute the move direction
     # heading +x
     if s[2] in [2, 3, 4]:
