@@ -1,5 +1,5 @@
 import numpy as np
-# Problem 1(a), Problem 1(b)
+
 # Defining Actions
 STILL = 0
 FORWARD = 1
@@ -8,6 +8,11 @@ NOT_TURN = 0
 TURN_LEFT = -1
 TURN_RIGHT = 1
 
+# Define the grid world
+L = 8
+W = 8
+
+# Problem 1(a)
 # Create State Space S = {s}, s = (x, y, h). Coordinates (x, y) and heading h
 S = []
 for x in range(L):
@@ -18,6 +23,7 @@ for x in range(L):
 # State Space Size Ns
 Ns = len(S)
 
+# Problem 1(b)
 # Create Action Space A = {a}
 A = [];
 for action in [STILL, FORWARD, BACKWARD]:
@@ -30,23 +36,19 @@ for action in [STILL, FORWARD, BACKWARD]:
 # Action Space Size Na
 Na = len(A)
 
+'''
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
 
 policy = {}
 for s in S:
     # Get the vector from the state to the goal
-    dir_vector = [5-s[0], 7-s[1]]
+    dir_vector = [3-s[0], 4-s[1]]
     
     # already reach goal
     if dir_vector == [0, 0]:
         policy[s] = (STILL, NO_TURN)
-    
-    #in the wall
-    if (s[0]==0 or 7) or (s[1]==0 or 7):
         
-    
-    
     # Compute the move direction
     # heading +x
     if s[2] in [2, 3, 4]:
@@ -76,3 +78,4 @@ for s in S:
         turn = RIGHT_TURN
         
     policy[s] = (move, turn)
+'''
