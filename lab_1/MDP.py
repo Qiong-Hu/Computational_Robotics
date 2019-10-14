@@ -65,11 +65,12 @@ def err_prob(heading, pe):
 def p_sa(s, a, s_, pe):
     # Current state s = (x, y, h) 
     # Future state s_p = (x_p, y_p, h_p)
+    # Given state s_: need to compare with s_p to calculate probability
     # Action a = (motion, turn)
     # Pre-rotate error pe: If the robot moves, it will first rotate by +1 or -1 (mod 12) with probability "pe" before it moves. It will not pre-rotate with probability 1-2*pe. If motion is still, no error. 
 
     # Pre-rotate probability validity check
-    if (pe < 0 and pe > 0.5):
+    if (pe < 0 or pe > 0.5):
         return ValueError('Invalid error probability Pe. Pe should be between 0 and 0.5.')
 
     x, y = s[0], s[1]
