@@ -95,7 +95,7 @@ def p_sa(s, a, s_, pe):
                 y_p = y
             else:
                 y_p = s[1]
-      
+
             h_p = (state[0] + a[1]) % 12
             s_p = (x_p, y_p, h_p)
 
@@ -117,6 +117,7 @@ def next_state(s, a, pe):
         if p_sa(s, a, state, pe) > 0:
             p[state] = p_sa(s, a, state, pe)
     return p
+
 
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
