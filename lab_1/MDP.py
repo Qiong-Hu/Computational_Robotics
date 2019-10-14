@@ -9,6 +9,10 @@ NOT_TURN = 0
 TURN_LEFT = -1
 TURN_RIGHT = 1
 
+# Define grid world
+L = 8
+W = 8
+
 # Problem 1(a)
 # Create State Space S = {s}, s = (x, y, h). Coordinates (x, y) and heading h
 S = []
