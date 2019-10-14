@@ -42,7 +42,7 @@ NA = len(A)
 
 # Problem 1(c)
 # Transform 12 headings to the nearest cardinal direction
-def Dir(heading):
+def direction(heading):
     dir4 = int((heading + 1) / 3) % 4   # Transform to 4 directions
     # dir4: 0 -> +y (0, 1), 1 -> +x (1, 0), 2 -> -y (0, -1), 3 -> -x (-1, 0)
     x = dir4 % 2 if not dir4 % 2 else 2 - dir4
@@ -82,14 +82,14 @@ def p_sa(s, a, s_, pe):
     else:
         for state in err_prob(s[2], pe):
             # Attempting to move off of a grid will result in no linear movement, though rotation portion will still happen.
-            x = s[0] + a[0] * Dir(state[0])[0]
+            x = s[0] + a[0] * direction(state[0])[0]
             if (0 <= x <= L - 1):
                 x_p = x
             else: 
                 x_p = s[0]
 
             # Consider directions a[0]: FORWARDS (+1) and BACKWARDS (-1)
-            y = s[1] + a[0] * Dir(state[0])[1]
+            y = s[1] + a[0] * direction(state[0])[1]
             if (0 <= y <= W - 1):
                 y_p = y
             else:
