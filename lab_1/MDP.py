@@ -96,13 +96,14 @@ def p_sa(s, a, s_, pe):
       
             h_p = (state[1] + a[1]) % 12
             s_p = (x_p, y_p, h_p)
-            
-            prob = state[2]
 
             # Check if the "s_" argument equals to the calculated future states "s_p".
             if s_ == s_p:
+                prob = state[2]
                 return prob
     return prob
+
+print(p_sa((0,1,10), (1,0), (2,2,11), 0.2))
 
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
