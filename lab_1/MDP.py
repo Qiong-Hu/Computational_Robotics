@@ -12,6 +12,8 @@ TURN_LEFT = -1
 TURN_RIGHT = 1
 turn_list = [NOT_TURN, TURN_LEFT, TURN_RIGHT]
 
+GOAL = (5, 6)
+
 # Define grid world
 L = 8
 W = 8
@@ -133,7 +135,7 @@ def reward(s):
         return -10
 
     # Goal state (Green, marked *)
-    elif s[0] == 5 and s[1] == 6:
+    elif s[0] == GOAL[0] and s[1] == GOAL[1]:
         return 1
 
     # Every other state has reward 0
@@ -149,10 +151,10 @@ def policy_init(S):
     # Return policy: a dictionary of all the policies
 
     policy = {}
-    goal = (5, 6)
+    
     for s in S:
         # Get the vector from the state to the goal
-        dir_vector = [goal[0] - s[0], goal[1] - s[1]]
+        dir_vector = [GOAL[0] - s[0], GOAL[1] - s[1]]
 
         # Already reach goal
         if dir_vector == [0, 0]:
@@ -233,7 +235,7 @@ def generate_trajectory(policy, s0, pe, show=True):
     trajectory = []
     s_now = s0
     #the robot keep moving until it reaches target
-    while (s_now[0] !=5 or s_now[1] !=6):
+    while (s_now[0] !=GOAL[0] or s_now[1] !=GOAL[1]):
         #add state and action now in to trajectory
         traj.append([s_now, policy[s_now]])
         #get probability of all possible next states
