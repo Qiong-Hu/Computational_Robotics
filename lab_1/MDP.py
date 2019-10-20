@@ -224,7 +224,7 @@ def policy_init(S):
 # Problem 3(b)
 #Write a function to generate and plot a trajectory of a robot given policy matrix/array , initial state s0, and error probability pe.
 
-def generate_trajectory(policy, s0, pe, show=True):
+def generate_trajectory(policy, s0, pe=0, show=True):
     """
     Generate a trajectory using policy from initial state s0 to the goal and
     visualize the trajectory on the grid world.
@@ -244,14 +244,78 @@ def generate_trajectory(policy, s0, pe, show=True):
     # Generate the trajectory
     trajectory = []
     s_now = s0
+
+    trajectory.append([s_now, policy[s_now]])
     #the robot keep moving until it reaches target
-    while (s_now[0] !=GOAL[0] or s_now[1] !=GOAL[1]):
-        #add state and action now in to trajectory
-        traj.append([s_now, policy[s_now]])
+    while (s_now[0] != GOAL[0] or s_now[1] != GOAL[1]):
+
         #get probability of all possible next states
         P_state = next_state(s_now, policy[s_now], pe)
-        #choose the max possible state to be next
-        state_index = max(P_state.keys())
-        s_next = P_state[state_index]
-        s_now = s_next
+        #choose the mmap possible state to be next
+        
+        states=P_state.keys()
+        probs=P_state.values()
+        #choose next states according to probs
+        if len(probs)==1:    
+            s_next = states[0]
+            s_now = s_next
+        else:
+            #generate a random float between (0,1)
+            x=random.random()
+            if x<probs[0]:
+                s_next = states[0]
+                s_now = s_next
+            elif probs[0]<x<(probs[0]+probs[1]):
+                s_next = states[1]
+                s_now = s_next
+            else:
+                s_next = states[2]
+                s_now = s_next
+        #add state and action now in to trajectory
+        trajectory.append([s_now, policy[s_now]])
 
+    # Grid world initilization
+    fig = plt.figure(figsize = (L,W))
+    map = fig.add_subplot(1,1,1)
+    plt.xlim((0, L))
+    plt.ylim((0, W))
+    plt.grid(True, color = 'k')
+
+    # Place red markers
+    edge1 = plt.Rectangle((0,0), 1, L, color = 'r')
+    edge2 = plt.Rectangle((0,0), W, 1, color = 'r')
+    edge3 = plt.Rectangle((L-1,0), 1, L, color = 'r')
+    edge4 = plt.Rectangle((0,W-1), W, 1, color = 'r')
+    map.add_patch(edge1)
+    map.add_patch(edge2)
+    map.add_patch(edge3)
+    map.add_patch(edge4)
+
+    # Place yellow markers
+    yellow = plt.Rectangle((3,4), 1, 3, color = 'yellow',alpha = 1)
+    map.add_patch(yellow)
+
+    # Plot green goal
+    goal = plt.Rectangle((5,6), 1, 1, color = 'greenyellow',alpha = 1)
+    map.add_patch(goal)
+
+    # Plot the start state
+    plt.plot(s0[0]+0.5, s0[1]+0.5, 'o', markersize = '10')
+    map.arrow(s0[0]+0.5, s0[1]+0.5, 0.4*np.sin(30*s0[2]*np.pi/180),0.4*np.cos(30*s0[2]*np.pi/180), head_width = 0.1, head_length = 0.2, fc = 'k', ec = 'k')
+    
+    # Plot all passing states
+    for i in range(1, len(trajectory)):
+        x1 = trajectory[i-1][0][0]
+        y1 = trajectory[i-1][0][1]
+        x2 = trajectory[i][0][0]
+        y2 = trajectory[i][0][1]
+        h = trajectory[i][0][2]
+        plt.plot([x1+0.5, x2+0.5], [y1+0.5, y2+0.5], 'k--')
+        plt.plot(x2+0.5, y2+0.5, 'o', markersize = '10')
+        map.arrow(x2+0.5, y2+0.5, 0.4*np.sin(30*h*np.pi/180),0.4*np.cos(30*h*np.pi/180), \
+                 head_width = 0.1, head_length = 0.2, fc = 'k', ec = 'k')
+    #plot the picture
+    if show:
+        plt.show()
+
+    return trajectory
