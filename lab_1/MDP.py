@@ -155,53 +155,63 @@ def policy_init(S):
     for s in S:
         # Get the vector from the state to the goal
         dir_vector = [GOAL[0] - s[0], GOAL[1] - s[1]]
-
+        
         # Already reach goal
         if dir_vector == [0, 0]:
             policy[s] = (STILL, NOT_TURN)
             continue
 
-        # Compute the moving direction -> TODO: can optimize
+        # Compute the moving direction 
         # Heading +x, which means h in [2, 3, 4]
         if s[2] in [2, 3, 4]:
             # If target is in the right of robot, go forwards, else go backwards 
             if dir_vector[0] >= 0:
-                motion = FORWARDS 
+                motion = FORWARDS
+                dir_vector[0]-=1 
             else:
                 motion = BACKWARDS
+                dir_vector[0]+=1
 
         # Heading -x, which means h in [8, 9, 10]
         if s[2] in [8, 9, 10]:
             # If target is in the left of robot, go forwards, else go backwards
-            if dir_vector[0]<=0:
+            if dir_vector[0] <= 0:
                 motion = FORWARDS
+                dir_vector[0]+=1
             else:
                 motion = BACKWARDS
+                dir_vector[0]-=1
 
         # Heading +y,which means h in [11, 0, 1]
         if s[2] in [11, 0, 1]:
             # If target is in front of robot, go forwards, else go backwards
             if dir_vector[1] >= 0:
                 motion = FORWARDS 
+                dir_vector[1]-=1
             else:
                 motion = BACKWARDS
+                dir_vector[1]+=1
 
         # Heading -y,which means h in [5,6,7]
         if s[2] in [5, 6, 7]:
             # If target is in front of robot, go backwards, else go forwards
             if dir_vector[1] <= 0:
                 motion = FORWARDS
+                dir_vector[1]+=1
             else:
                 motion = BACKWARDS
+                dir_vector[1]-=1
 
         # Compute the turn direction
         # get the vector angle theta
         theta = np.arctan2(dir_vector[1], dir_vector[0])*180/np.pi
         angle_diff = s[2]*30-(90 - theta)
-        #if target is in the left of robot, turn left, if they are in one line, not turn, else turn right 
-        if (angle_diff > 0) and (angle_diff < 180):
+        angle_diff=angle_diff%180
+        threshold=0
+        #if target is in the left front of robot or right back, turn left, if they are in one line, not turn, else turn right 
+        if (angle_diff > threshold) and (angle_diff < 90):
             turn = TURN_LEFT
-        elif (angle_diff == 0.0) or (angle_diff == 180.0):
+        elif angle_diff <= threshold or angle_diff == 90:
             turn = NOT_TURN
         else:
             turn = TURN_RIGHT
