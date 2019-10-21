@@ -473,6 +473,7 @@ def policy_iteration_timing(reward = reward, pe = 0):
     ### print("Run Time is %s sec." % str(end - start))
     # Running reult: threshold = 1, value = 3.403192020275376, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 429.80976271629333 sec.
 
+policy_iteration_timing(reward, 0)
 
 # Value Iteration
 # Problem 4(a)
@@ -529,6 +530,8 @@ def value_iteration_timing(reward = reward, pe = 0):
     ### print("Trajectory from %s to the goal is: " % str(s0), trajectory)
     ### print("Run Time is %s sec." % str(end - start))
     # Running result: threshold = 0.01, value = 3.8105780355886414, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 1304.1105811595917 sec.
+
+value_iteration_timing(reward, 0)
 
 
 # Additional Scenarios
