@@ -368,7 +368,7 @@ def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.00
 
 # Problem 3(e)
 # The value of the trajectory in 3(c). (lambda = 0.9)
-V = policy_eval(S, policy_init(S), 0, 0.9, 0.001)
+V = policy_eval(S, policy_init(S), reward, 0, 0.9, 0.1)
 s0 = (1, 6, 6)
 print("The value V(s0) is:", V[s0])
 
@@ -403,8 +403,6 @@ def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
     return policy
 
 # Problem 3(g)
-def policy_iteration
+# def policy_iteration
 # Combine your functions 
 
-
-         
