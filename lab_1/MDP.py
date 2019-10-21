@@ -341,7 +341,7 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
 
 # Problem 3(d)
 # Write a function to compute the policy evaluation of a policy. That is, this function should return a matrix/array of values v = V (s) when indexed by state s. The inputs will be a matrix/array storing as above, along with discount factor.
-def policy_eval(S, V = {}, policy, reward, pe = 0, discount_factor = 1, threshold = 0.001):
+def policy_eval(S, V, policy, reward, pe = 0, discount_factor = 1, threshold = 0.001):
     # State space S
     # Value function V: for iteration, empty as initialization
     # policy {S: A}: shaped dictionary representing the policy.
@@ -379,10 +379,12 @@ def policy_eval(S, V = {}, policy, reward, pe = 0, discount_factor = 1, threshol
 
 # Problem 3(e)
 # The value of the trajectory in 3(c). (lambda = 0.9)
-# V = policy_eval(S, {}, policy_init(S), reward, 0, 0.9, 0.1)
-# s0 = (1, 6, 6)
-# print("The value V(s0) is:", V[s0])
-# running result: threshold = 0.1, value = -2.1827644307687253, running time = 135.9s
+
+### V = policy_eval(S, {}, policy_init(S), reward, 0, 0.9, 0.001)
+s0 = (1, 6, 6)
+### print("The value V(s0) is:", V[s0])
+
+# Running result: threshold = 0.1, value = -2.1827644307687253, running time = 135.9s
 
 
 # Problem 3(f)
@@ -412,10 +414,11 @@ def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
 
     return policy
 
+
 # Problem 3(g)
-# Combine your functions above in a new function that computes policy iteration on the system, # returning optimal policy pi* with optimal value V*.
+# Combine your functions above in a new function that computes policy iteration on the system, returning optimal policy pi* with optimal value V*.
 # Policy Iteration converges when pi(i+1) == pi(i)
-def policy_iteration(S, policy, reward, pe = 0, discount_factor = 1):
+def policy_iteration(S, V, policy, reward, pe = 0, discount_factor = 1):
     # policy: policy to be iterated
     # reward: reward function to be used for policy evaluation.
     # discount_factor: lambda
@@ -424,7 +427,7 @@ def policy_iteration(S, policy, reward, pe = 0, discount_factor = 1):
     # Keep updating policy until optimal value is found.
     while True:
         # Calculate value of each state
-        V = policy_eval(S, V, policy, reward, pe, discount_factor, 0.001)
+        V = policy_eval(S, V, policy, reward, pe, discount_factor, 1)
         # Update policy by one step lookahead
         policy_new = policy_one_step_lookahead(S, V, reward, pe, discount_factor)
         # If policy doesn't change, the iteration is done
@@ -432,22 +435,28 @@ def policy_iteration(S, policy, reward, pe = 0, discount_factor = 1):
             return policy, V
         else:
             policy = policy_new
+        # For debug
+        print('value = '+str(V[(1,6,6)]))
+
 
 # Problem 3(h) and 3(i)
-# Run this function to recompute and plot the trajectory and value of the robot decribed in 3(c) under the optimal policy pi*. 
+# Run this function to recompute and plot the trajectory and value of the robot described in 3(c) under the optimal policy pi*. 
 # Keep track of the compute time.
 import time
 start = time.time()
 # Optimal_policy calculation
-optimal_policy, optimal_V = policy_iteration(S, V, policy_init(S), reward, 0, 0.9)
+optimal_policy, optimal_V = policy_iteration(S, {}, policy_init(S), reward, 0, 0.9)
 
-#Recompute and plot the trajectory and value of the robot under optimal policy
-trajectory = generate_trajectory(optimal_policy, s0 = (1, 6, 6), pe = 0, show = True)
+# Recompute and plot the trajectory and value of the robot under optimal policy
+s0 = (1, 6, 6)
+trajectory = generate_trajectory(optimal_policy, s0, pe = 0, show = True)
 end = time.time()
 print("Trajectory from %s to the goal is: " % str(s0), trajectory)
-print("Run Time is %s sec" % str(end - start))
+print("Run Time is %s sec." % str(end - start))
+# Running reult: value = 3.403192020275376, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 429.80976271629333 sec.
 
-#Value Iteration
+
+# Value Iteration
 # Problem 4(a)
 def value_iteration(S, policy, reward, pe = 0, discount_factor = 0.9, threshold = 0.01):
 # Return optimal value, optimal value
