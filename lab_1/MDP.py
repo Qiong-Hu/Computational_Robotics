@@ -19,6 +19,7 @@ GOAL = (5, 6)
 L = 8
 W = 8
 
+
 # Problem 1(a)
 # Create State Space S = {s}, s = (x, y, h). Coordinates (x, y) and heading h
 S = []
@@ -29,6 +30,7 @@ for x in range(L):
 
 # State Space Size NS
 NS = len(S)
+
 
 # Problem 1(b)
 # Create Action Space A = {a}, a = (motion, turn)
@@ -42,6 +44,7 @@ for motion in motion_list:
 
 # Action Space Size NA
 NA = len(A)
+
 
 # Problem 1(c)
 # Transform 12 headings to the nearest cardinal direction
@@ -108,6 +111,7 @@ def p_sa(s, a, s_, pe):
                 return prob
     return prob
 
+
 # Problem 1(d)
 # Uses the above function p_sa to return a next state s' given error probability pe, initial state s, and action a. Make sure the returned value s' follows the probability distribution specified by p_sa.
 def next_state(s, a, pe):
@@ -120,6 +124,7 @@ def next_state(s, a, pe):
         if p_sa(s, a, state, pe) > 0:
             p[state] = p_sa(s, a, state, pe)
     return p
+
 
 # Problem 2(a)
 # Write a function that returns the reward R(s) given input s.
@@ -142,6 +147,7 @@ def reward(s):
     # Every other state has reward 0
     else:
         return 0
+
 
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
@@ -328,31 +334,25 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
 
     return trajectory
 
+
 # Problem 3(c)
 # Generate and plot a trajectory of a robot using policy 0 starting in state x = 1; y = 6; h = 6 (i.e. # top left corner, pointing down). Assume pe = 0.
 
-generate_trajectory(policy_init(S), (1, 6, 6), 0)
+# generate_trajectory(policy_init(S), (1, 6, 6), 0)
+
 
 # Problem 3(d)
-#Write a function to compute the policy evaluation of a policy . That is, this function should #return a matrix/array of values v = V (s) when indexed by state s. The inputs will be a #matrix/array storing  as above, along with discount factor.
+# Write a function to compute the policy evaluation of a policy. That is, this function should return a matrix/array of values v = V (s) when indexed by state s. The inputs will be a matrix/array storing as above, along with discount factor.
 
-def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.001):
-    """
-    Evaluate a policy
-        S: States
-        policy: {S: A} shaped dictionary representing the policy.
-        reward: reward function to be used for policy evaluation.
-        discount_factor: Lambda discount factor.
-        pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5
-        threshold: We stop evaluation once our value function change is less than theta for all states.
-
-    Returns:
-        Dictionary of shape {S: V} representing the value function.
-    """
-    # Start with an all 0 value function
-    V = {}
-    for s in S:
-        V[s] = 0
+def policy_eval(S, V = {}, policy, reward, pe = 0, discount_factor = 1, threshold = 0.001):
+    # State space S
+    # Value function V: for iteration
+    # policy {S: A}: shaped dictionary representing the policy.
+    # reward: reward function to be used for policy evaluation.
+    # pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5
+    # discount_factor: Lambda discount factor.
+    # threshold: We stop evaluation once our value function change is less than theta for all states.
+    # Returns: Dictionary of shape {S: V} representing the value function.
 
     while True:
         diff = 0
@@ -361,8 +361,8 @@ def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.00
             v = 0
             # Look at the possible next states:
             P_states = next_state(s, policy[s], pe)
-            states = list(P_states.keys())
-            probs = list(P_states.values())
+            states=list(P_states.keys())
+            probs=list(P_states.values())
     # Calculate the value:
             for i in range(len(states)):
                 # Calculate the expected value
@@ -378,12 +378,13 @@ def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.00
 
 # Problem 3(e)
 # The value of the trajectory in 3(c). (lambda = 0.9)
-# V = policy_eval(S, policy_init(S), reward, 0, 0.9, 0.1)
-# s0 = (1, 6, 6)
-# print("The value V(s0) is:", V[s0])
-
+V = policy_eval(S, {}, policy_init(S), reward, 0, 0.9, 0.001)
+s0 = (1, 6, 6)
+print("The value V(s0) is:", V[s0])
 
 # Problem 3(f)
+#Write a function that returns a matrix/array giving the optimal policy given a one-step lookahead on value V .
+
 def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
     # Function that returns a matrix/array pi giving the optimal policy given a one-step lookahead on value V
     # V: evaluated value using the current policy
@@ -391,22 +392,22 @@ def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
     # pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
     # discount_factor: Lambda
     # Return policy as dict: {next state, optimal policy}
-
+    
     policy = {}
-
-    for s in S:
+    
+    for s in S: 
         # Initialize all action value as 0.
         action = np.zeros(NA)
         for i in range(NA):
             # Check the possible next state for each action.
             P_states = next_state(s, A[i], pe)
-            states = list(P_states.keys())
-            probs = list(P_states.values())
+            states=list(P_states.keys())
+            probs=list(P_states.values()) 
             # Calculate value of each action.
             for j in range(len(states)):
                 action[i] += probs[j] * (reward(states[j]) + discount_factor * V[states[j]])
 
-       # Get the best action
+       # Get the best action 
             best_action_index = np.argmax(action)
             policy[s] = A[best_action_index]
 
@@ -414,15 +415,15 @@ def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
 
 # Problem 3(g)
 def policy_iteration(S, policy, reward, pe = 0, discount_factor = 1.0):
-    # Combine your functions above in a new function that computes policy iteration on the system, # returning optimal policy pi* with optimal value V*.
-    # policy: policy to be iterated
-    # reward: reward function to be used for policy evaluation.
-    # discount_factor: lambda
-    # Returns (policy, value).
-    # Keep updating policy until optimal value is found.
+# Combine your functions above in a new function that computes policy iteration on the system, # returning optimal policy pi* with optimal value V*.
+# policy: policy to be iterated
+# reward: reward function to be used for policy evaluation.
+# discount_factor: lambda
+# Returns (policy, value).
+# Keep updating policy until optimal value is found.
     while True:
         # Calculate value of each state
-        V = policy_eval(S, policy, reward, pe, discount_factor, 0.001)
+        V = policy_eval(S, V, policy, reward, pe, discount_factor, 0.001)
         # Update policy by one step lookahead
         policy_new = policy_one_step_lookahead(S, V, reward, pe, discount_factor)
         # If policy doesn't change, the iteration is done
