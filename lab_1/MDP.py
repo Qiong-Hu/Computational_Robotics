@@ -66,15 +66,15 @@ def err_prob(heading, pe):
 # Transition Probabilities p_sa
 # Probability of state s to new state s', with action a, error probability pe
 def p_sa(s, a, s_, pe):
-    # Current state s = (x, y, h) 
+    # Current state s = (x, y, h)
     # Next state s_p = (x_p, y_p, h_p)
     # Given state s_: need to compare with s_p to calculate probability
     # Action a = (motion, turn)
-    # Pre-rotate error pe: If the robot moves, it will first rotate by +1 or -1 (mod 12) with probability "pe" before it moves. It will not pre-rotate with probability 1-2*pe. If motion is still, no error. 
+    # Pre-rotate error pe: If the robot moves, it will first rotate by +1 or -1 (mod 12) with probability "pe" before it moves. It will not pre-rotate with probability 1-2*pe. If motion is still, no error.
 
     # Pre-rotate probability validity check
     if (pe < 0 or pe > 0.5):
-        return ValueError('Invalid error probability Pe. Pe should be between 0 and 0.5.')
+        return ValueError('Invalid error probability pe. pe should be between 0 and 0.5.')
 
     x, y = s[0], s[1]
     prob = 0
@@ -89,7 +89,7 @@ def p_sa(s, a, s_, pe):
             x = s[0] + a[0] * direction(state[0])[0]
             if (0 <= x <= L - 1):
                 x_p = x
-            else: 
+            else:
                 x_p = s[0]
 
             # Consider directions a[0]: FORWARDS (+1) and BACKWARDS (-1)
@@ -152,23 +152,23 @@ def policy_init(S):
     # Return policy: a dictionary of all the policies
 
     policy = {}
-    
+
     for s in S:
         # Get the vector from the state to the goal
         dir_vector = [GOAL[0] - s[0], GOAL[1] - s[1]]
-        
+
         # Already reach goal
         if dir_vector == [0, 0]:
             policy[s] = (STILL, NOT_TURN)
             continue
 
-        # Compute the moving direction 
+        # Compute the moving direction
         # Heading +x, which means h in [2, 3, 4]
         if s[2] in [2, 3, 4]:
-            # If target is in the right of robot, go forwards, else go backwards 
+            # If target is in the right of robot, go forwards, else go backwards
             if dir_vector[0] >= 0:
                 motion = FORWARDS
-                dir_vector[0] -= 1 
+                dir_vector[0] -= 1
             else:
                 motion = BACKWARDS
                 dir_vector[0] += 1
@@ -219,9 +219,9 @@ def policy_init(S):
             turn = NOT_TURN
         else:
             turn = TURN_RIGHT
-        
+
         policy[s] = (motion, turn)
-    
+
     return policy
 
 
@@ -236,13 +236,14 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
 
     # Confirm the feasibility of pe
     if (pe < 0 or pe > 0.5):
-        return ValueError('Invalid error probability Pe. Pe should be between 0 and 0.5.')
+        return ValueError('Invalid error probability pe. pe should be between 0 and 0.5.')
 
     # Generate the trajectory
     trajectory = []
     s_now = s0
 
     trajectory.append([s_now, policy[s_now]])
+
     # The robot keeps moving until it reaches target
     while (s_now[0] != GOAL[0] or s_now[1] != GOAL[1]):
 
@@ -288,77 +289,122 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
     map.add_patch(edge4)
 
     # Place yellow markers
-    yellow = plt.Rectangle((3,4), 1, 3, color = 'yellow',alpha = 1)
+    yellow = plt.Rectangle((3, 4), 1, 3, color = 'yellow', alpha = 1)
     map.add_patch(yellow)
 
-    # Plot green goal
-    goal = plt.Rectangle((5,6), 1, 1, color = 'greenyellow',alpha = 1)
+    # Place green goal
+    goal = plt.Rectangle((5, 6), 1, 1, color = 'greenyellow', alpha = 1)
     map.add_patch(goal)
 
     # Plot the start state
-    plt.plot(s0[0]+0.5, s0[1]+0.5, 'o', markersize = '10')
-    map.arrow(s0[0]+0.5, s0[1]+0.5, 0.4*np.sin(30*s0[2]*np.pi/180),0.4*np.cos(30*s0[2]*np.pi/180), head_width = 0.1, head_length = 0.2, fc = 'k', ec = 'k')
-    
+    plt.plot(s0[0] + 0.5, s0[1] + 0.5, 'o', markersize = '10')
+    map.arrow(s0[0] + 0.5, s0[1] + 0.5, 0.4 * np.sin(30 * s0[2] * np.pi/180),0.4 * np.cos(30 * s0[2] * np.pi/180), head_width = 0.1, head_length = 0.2, fc = 'k', ec = 'k')
+
     # Plot all passing states
-    for i in range(0, len(trajectory)-1):
+    for i in range(0, len(trajectory) - 1):
         x1 = trajectory[i][0][0]
         y1 = trajectory[i][0][1]
-        x2 = trajectory[i+1][0][0]
-        y2 = trajectory[i+1][0][1]
-        h = trajectory[i+1][0][2]
-        plt.plot([x1+0.5, x2+0.5], [y1+0.5, y2+0.5], 'k--')
-        plt.plot(x2+0.5, y2+0.5, 'o', markersize = '10')
-        map.arrow(x2+0.5, y2+0.5, 0.4*np.sin(30*h*np.pi/180),0.4*np.cos(30*h*np.pi/180), \
+        x2 = trajectory[i + 1][0][0]
+        y2 = trajectory[i + 1][0][1]
+        h = trajectory[i + 1][0][2]
+        plt.plot([x1 + 0.5, x2 + 0.5], [y1 + 0.5, y2 + 0.5], 'k--')
+        plt.plot(x2 + 0.5, y2 + 0.5, 'o', markersize = '10')
+        map.arrow(x2 + 0.5, y2 + 0.5, 0.4*np.sin(30 * h * np.pi/180), 0.4 * np.cos(30 * h * np.pi/180),
                  head_width = 0.1, head_length = 0.2, fc = 'k', ec = 'k')
-    # Plot the picture
+
+    # Plot the grid world
     if show:
         plt.show()
 
     return trajectory
 
 # Problem 3(c)
-# Generate and plot a trajectory of a robot using policy 0 starting in state x = 1; y = 6; h = 6 (i.e. #top left corner, pointing down). Assume pe = 0.
+# Generate and plot a trajectory of a robot using policy 0 starting in state x = 1; y = 6; h = 6 (i.e. # top left corner, pointing down). Assume pe = 0.
 
 generate_trajectory(policy_init(S), (1, 6, 6), 0)
 
 # Problem 3(d)
-def policy_eval(policy, reward_fn, pe = 0.0, discount_factor = 1.0, theta = 0.001):
+#Write a function to compute the policy evaluation of a policy . That is, this function should #return a matrix/array of values v = V (s) when indexed by state s. The inputs will be a #matrix/array storing  as above, along with discount factor.
+
+def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.001):
     """
     Evaluate a policy
-
-    Args:
+        S: States
         policy: {S: A} shaped dictionary representing the policy.
-        reward_fn: reward function to be used for policy evaluation.
-        discount_factor: Gamma discount factor.
-        p_e: the error probability Pe to pre-rotate when chosing to move. 0 <= Pe <= 0.5
-        theta: We stop evaluation once our value function change is less than theta for all states.
-
+        reward: reward function to be used for policy evaluation.
+        discount_factor: Lambda discount factor.
+        pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5
+        threshold: We stop evaluation once our value function change is less than theta for all states.
+        
     Returns:
         Dictionary of shape {S: V} representing the value function.
     """
-    # Start with a random (all 0) value function
+    # Start with an all 0 value function
     V = {}
     for s in S:
-        V[s] = 0.0
-
+        V[s] = 0
+    
     while True:
-        delta = 0
+        diff = 0
         # For each state, perform the evaluation
         for s in S:
             v = 0
-            # Look at the possible next states
-            P_state = next_state(s, policy[s], pe)
-            for prob in P_state.keys():
+            # Look at the possible next states:
+            P_states = next_state(s, policy[s], pe)
+            states=list(P_states.keys())
+            probs=list(P_states.values())
+    # Calculate the value:
+            for i in range(len(states)):
                 # Calculate the expected value
-                s_next = P_state[prob]
-                v = v + prob * (reward_fn(s_next) + discount_factor * V[s_next])
-            # How much our value function changed (across any states)
-            delta = max(delta, np.abs(v - V[s]))
+                v = v + probs[i] * (reward(states[i]) + discount_factor * V[states[i]])
+            # Calculate how much the value function changed:
+            diff = max(diff, np.abs(v - V[s]))
+            # Update the value function
             V[s] = v
-        # Stop evaluating once our value function change is below a threshold
-        if delta < theta:
+        # Stop evaluating once the value function change is below a threshold
+        if diff < threshold:
             break
     return V
 
+# Problem 3(e)
+# The value of the trajectory in 3(c). (lambda = 0.9)
+V = policy_eval(S, policy_init(S), 0, 0.9, 0.001)
+s0 = (1, 6, 6)
+print("The value V(s0) is:", V[s0])
 
 
+# Problem 3(f)
+def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
+    # Function that returns a matrix/array pi giving the optimal policy given a one-step lookahead on value V
+    # V: evaluated value using the current policy
+    # reward: reward function to be used for policy evaluation.
+    # pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
+    # discount_factor: Lambda
+    # Return policy as dict: {next state, optimal policy}
+    
+    policy = {}
+    
+    for s in S: 
+        # Initialize all action value as 0.
+        action = np.zeros(NA)
+        for i in range(NA):
+            # Check the possible next state for each action.
+            P_states = next_state(s, A[i], pe)
+            states=list(P_states.keys())
+            probs=list(P_states.values()) 
+            # Calculate value of each action.
+            for j in range(len(states)):
+                action[i] += probs[j] * (reward(states[j]) + discount_factor * V[states[j]])
+
+       # Get the best action 
+            best_action_index = np.argmax(action)
+            policy[s] = A[best_action_index]
+
+    return policy
+
+# Problem 3(g)
+def policy_iteration
+# Combine your functions 
+
+
+         
