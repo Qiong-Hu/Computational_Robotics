@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 # Defining Actions
 STILL = 0
@@ -192,7 +193,7 @@ def policy_init(S):
                 motion = BACKWARDS
                 dir_vector[1] += 1
 
-        # Heading -y,which means h in [5,6,7]
+        # Heading -y, which means h in [5,6,7]
         if s[2] in [5, 6, 7]:
             # If target is in front of robot, go backwards, else go forwards
             if dir_vector[1] <= 0:
@@ -203,12 +204,15 @@ def policy_init(S):
                 dir_vector[1] -= 1
 
         # Compute the turn direction
-        # get the vector angle theta
+        # Get the vector angle theta
         theta = np.arctan2(dir_vector[1], dir_vector[0]) * 180 / np.pi
         angle_diff = s[2] * 30 - (90 - theta)
-        angle_diff=angle_diff % 180
+        angle_diff = angle_diff % 180
         threshold = 0
-        #if target is in the left front of robot or right back, turn left, if they are in one line, not turn, else turn right 
+
+        # if target is in the left front of robot or right back, turn left
+        # if they are in one line, not turn
+        # else turn right 
         if (angle_diff > threshold) and (angle_diff < 90):
             turn = TURN_LEFT
         elif angle_diff <= threshold or angle_diff == 90:
@@ -222,60 +226,52 @@ def policy_init(S):
 
 
 # Problem 3(b)
-#Write a function to generate and plot a trajectory of a robot given policy matrix/array , initial state s0, and error probability pe.
+# Write a function to generate and plot a trajectory of a robot given policy matrix/array, initial state s0, and error probability pe.
 
-def generate_trajectory(policy, s0, pe=0, show=True):
-    """
-    Generate a trajectory using policy from initial state s0 to the goal and
-    visualize the trajectory on the grid world.
-    
-    Args:
-        policy: a directory of all policy
-        s0 = (x, y, h) : initial state
-        pe: the error probability pe to pre-rotate when choosing to move.
-    
-    Return:
-        Trajectory including passing states and actions on each state
-    """
+def generate_trajectory(policy, s0, pe = 0, show = True):
+    # policy: a directory of all policy
+    # s0 = (x, y, h) : initial state
+    # pe: the error probability pe to pre-rotate when choosing to move.
+    # Return: Trajectory including passing states and actions on each state
+
     # Confirm the feasibility of pe
-    if (pe < 0 or pe >0.5):
+    if (pe < 0 or pe > 0.5):
         return ValueError('Invalid error probability Pe. Pe should be between 0 and 0.5.')
-        
+
     # Generate the trajectory
     trajectory = []
     s_now = s0
 
     trajectory.append([s_now, policy[s_now]])
-    #the robot keep moving until it reaches target
+    # The robot keeps moving until it reaches target
     while (s_now[0] != GOAL[0] or s_now[1] != GOAL[1]):
 
-        #get probability of all possible next states
-        P_state = next_state(s_now, policy[s_now], pe)
-        #choose the mmap possible state to be next
+        # Get probability of all possible next states
+        P_states = next_state(s_now, policy[s_now], pe)
         
-        states=P_state.keys()
-        probs=P_state.values()
-        #choose next states according to probs
-        if len(probs)==1:    
+        states = list(P_states.keys())
+        probs = list(P_states.values())
+        # Choose next states according to probs
+        if len(probs) == 1:    
             s_next = states[0]
             s_now = s_next
         else:
-            #generate a random float between (0,1)
-            x=random.random()
-            if x<probs[0]:
+            # Generate a random float between (0,1)
+            x = random.random()
+            if x <= probs[0]:
                 s_next = states[0]
                 s_now = s_next
-            elif probs[0]<x<(probs[0]+probs[1]):
+            elif probs[0] < x <= (probs[0] + probs[1]):
                 s_next = states[1]
                 s_now = s_next
             else:
                 s_next = states[2]
                 s_now = s_next
-        #add state and action now in to trajectory
+        # Add state and action now in to trajectory
         trajectory.append([s_now, policy[s_now]])
 
     # Grid world initilization
-    fig = plt.figure(figsize = (L,W))
+    fig = plt.figure(figsize = (L, W))
     map = fig.add_subplot(1,1,1)
     plt.xlim((0, L))
     plt.ylim((0, W))
@@ -304,18 +300,65 @@ def generate_trajectory(policy, s0, pe=0, show=True):
     map.arrow(s0[0]+0.5, s0[1]+0.5, 0.4*np.sin(30*s0[2]*np.pi/180),0.4*np.cos(30*s0[2]*np.pi/180), head_width = 0.1, head_length = 0.2, fc = 'k', ec = 'k')
     
     # Plot all passing states
-    for i in range(1, len(trajectory)):
-        x1 = trajectory[i-1][0][0]
-        y1 = trajectory[i-1][0][1]
-        x2 = trajectory[i][0][0]
-        y2 = trajectory[i][0][1]
-        h = trajectory[i][0][2]
+    for i in range(0, len(trajectory)-1):
+        x1 = trajectory[i][0][0]
+        y1 = trajectory[i][0][1]
+        x2 = trajectory[i+1][0][0]
+        y2 = trajectory[i+1][0][1]
+        h = trajectory[i+1][0][2]
         plt.plot([x1+0.5, x2+0.5], [y1+0.5, y2+0.5], 'k--')
         plt.plot(x2+0.5, y2+0.5, 'o', markersize = '10')
         map.arrow(x2+0.5, y2+0.5, 0.4*np.sin(30*h*np.pi/180),0.4*np.cos(30*h*np.pi/180), \
                  head_width = 0.1, head_length = 0.2, fc = 'k', ec = 'k')
-    #plot the picture
+    # Plot the picture
     if show:
         plt.show()
 
     return trajectory
+
+# Problem 3(c)
+# Generate and plot a trajectory of a robot using policy 0 starting in state x = 1; y = 6; h = 6 (i.e. #top left corner, pointing down). Assume pe = 0.
+
+generate_trajectory(policy_init(S), (1, 6, 6), 0)
+
+# Problem 3(d)
+def policy_eval(policy, reward_fn, pe = 0.0, discount_factor = 1.0, theta = 0.001):
+    """
+    Evaluate a policy
+
+    Args:
+        policy: {S: A} shaped dictionary representing the policy.
+        reward_fn: reward function to be used for policy evaluation.
+        discount_factor: Gamma discount factor.
+        p_e: the error probability Pe to pre-rotate when chosing to move. 0 <= Pe <= 0.5
+        theta: We stop evaluation once our value function change is less than theta for all states.
+
+    Returns:
+        Dictionary of shape {S: V} representing the value function.
+    """
+    # Start with a random (all 0) value function
+    V = {}
+    for s in S:
+        V[s] = 0.0
+
+    while True:
+        delta = 0
+        # For each state, perform the evaluation
+        for s in S:
+            v = 0
+            # Look at the possible next states
+            P_state = next_state(s, policy[s], pe)
+            for prob in P_state.keys():
+                # Calculate the expected value
+                s_next = P_state[prob]
+                v = v + prob * (reward_fn(s_next) + discount_factor * V[s_next])
+            # How much our value function changed (across any states)
+            delta = max(delta, np.abs(v - V[s]))
+            V[s] = v
+        # Stop evaluating once our value function change is below a threshold
+        if delta < theta:
+            break
+    return V
+
+
+
