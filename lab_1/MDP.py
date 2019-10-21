@@ -449,13 +449,13 @@ def policy_iteration(S, V, policy, reward, pe = 0, discount_factor = 1):
         else:
             policy = policy_new
         # For debug
-        # print('Value = ' + str(V[s0]))
+        ### print('Value = ' + str(V[s0]))
 
 
 # Problem 3(h) and 3(i)
 # Run this function to recompute and plot the trajectory and value of the robot described in 3(c) under the optimal policy pi*. 
 
-def policy_iteration_timing(pe = 0):
+def policy_iteration_timing(reward = reward, pe = 0):
     # Keep track of the compute time.
     start = time.time()
     # Optimal_policy calculation
@@ -468,9 +468,9 @@ def policy_iteration_timing(pe = 0):
     file.write('Policy iteration timing:\n')
     file.write('Round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
     file.write('Optimal value: ' + str(optimal_V) + '\n')
-    file.write('Run time: ' + str(end-start) + ' sec.\n\n')
-    print("Trajectory from %s to the goal is: " % str(s0), trajectory)
-    print("Run Time is %s sec." % str(end - start))
+    file.write('Run time: ' + str(end - start) + ' sec.\n\n')
+    ### print("Trajectory from %s to the goal is: " % str(s0), trajectory)
+    ### print("Run Time is %s sec." % str(end - start))
     # Running reult: threshold = 1, value = 3.403192020275376, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 429.80976271629333 sec.
 
 
@@ -506,13 +506,13 @@ def value_iteration(S, policy, reward, pe = 0, discount_factor = 0.9, threshold 
             # Update value function
             V[s] = value_best_action
         # For debug
-        print("Value = " + str(V[s0]))
+        ### print("Value = " + str(V[s0]))
     return policy, V 
 
 # Problem 4(b) and 4(c)
 # Compute and plot the trajectory, value of the robot described in 3(c) under the optimal policy pi*. Compare with the results from policy iteration in 3(h).
 
-def value_iteration_timing(pe = 0):
+def value_iteration_timing(reward = reward, pe = 0):
     # Runtime analysis.
     start = time.time()
     # Optimal_value calculation
@@ -525,13 +525,85 @@ def value_iteration_timing(pe = 0):
     file.write('Value iteration timing: \n')
     file.write('Round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
     file.write('Optimal value: ' + str(optimal_V) + '\n')
-    file.write('Run time: ' + str(end-start) + ' sec.\n\n')
-    print("Trajectory from %s to the goal is: " % str(s0), trajectory)
-    print("Run Time is %s sec." % str(end - start))
+    file.write('Run time: ' + str(end - start) + ' sec.\n\n')
+    ### print("Trajectory from %s to the goal is: " % str(s0), trajectory)
+    ### print("Run Time is %s sec." % str(end - start))
     # Running result: threshold = 0.01, value = 3.8105780355886414, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 1304.1105811595917 sec.
 
 
-# Problem 5(a)
-# Recompute the robot trajectory and value given initial conditions from 3(c) but with pe = 25%.
+# Additional Scenarios
+# Problem 5(a) 
+# Recompute the robot trajectory and value given initial conditions from 3(c) but with pe = 0.25.
+
+
+# Problem 5(b)
+# Assume reward +1 applied only when robot is pointing straight down (h = 6 in the goal square; the reward is 0 otherwise. Recompute the trajectories and values given initial conditions from 3(c) with pe belongs to {0, 0.25}
+def reward_new(s):
+    # Current state s = (x, y, h)
+    # Return: rewards of the current state
+
+    # Border states (Red, marked X)
+    if s[0] == 0 or s[0] == L - 1 or s[1] == 0 or s[1] == W - 1:
+        return -100
+
+    # Lane Markers (Yellow, marked --)
+    elif s[0] == 3 and s[1] in [4, 5, 6]:
+        return -10
+
+    # Goal state (Green, marked *)
+    elif s[0] == GOAL[0] and s[1] == GOAL[1] and s[2] == 6:
+        return 1
+
+    # Every other state has reward 0
+    else:
+        return 0
+
+
+# Problem 5(c)
+# Qualitatively describe some conclusions from these scenarios.
+
+# Complete test lists:
+count = 1
+while True:
+    file.write('reward, pe = 0\n')
+    policy_iteration_timing(reward, 0)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
+    file.write('reward, pe = 0\n')
+    value_iteration_timing(reward, 0)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
+    file.write('reward, pe = 0.25\n')
+    policy_iteration_timing(reward, 0.25)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
+    file.write('reward, pe = 0.25\n')
+    value_iteration_timing(reward, 0.25)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
+    file.write('new reward, pe = 0\n')
+    policy_iteration_timing(reward_new, 0)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
+    file.write('new reward, pe = 0\n')
+    value_iteration_timing(reward_new, 0)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
+    file.write('new reward, pe = 0.25\n')
+    policy_iteration_timing(reward_new, 0.25)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
+    file.write('new reward, pe = 0.25\n')
+    value_iteration_timing(reward_new, 0.25)
+    print('Round ' + str(count) + 'done.')
+    count = count + 1
+
 
 file.close()
