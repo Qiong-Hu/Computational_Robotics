@@ -23,7 +23,6 @@ s0 = (1, 6, 6)
 L = 8
 W = 8
 
-
 # Problem 1(a)
 # Create State Space S = {s}, s = (x, y, h). Coordinates (x, y) and heading h
 S = []
@@ -34,7 +33,6 @@ for x in range(L):
 
 # State Space Size NS
 NS = len(S)
-
 
 # Problem 1(b)
 # Create Action Space A = {a}, a = (motion, turn)
@@ -48,7 +46,6 @@ for motion in motion_list:
 
 # Action Space Size NA
 NA = len(A)
-
 
 # Problem 1(c)
 # Transform 12 headings to the nearest cardinal direction
@@ -129,7 +126,6 @@ def next_state(s, a, pe):
             p[state] = p_sa(s, a, state, pe)
     return p
 
-
 # Problem 2(a)
 # Write a function that returns the reward R(s) given input s.
 def reward(s):
@@ -152,10 +148,8 @@ def reward(s):
     else:
         return 0
 
-
 # Problem 3(a)
 # Create and populate a matrix/array that stores the action a = pi0(s) prescribed by the initial policy pi0 when indexed by state s.
-
 # Initial a policy
 def policy_init(S):
     # State Space S = {s}
@@ -220,9 +214,7 @@ def policy_init(S):
         angle_diff = angle_diff % 180
         threshold = 0
 
-        # if target is in the left front of robot or right back, turn left
-        # if they are in one line, not turn
-        # else turn right
+        # if target is in the left front of robot or right back, turn left,if they are in one line, not turn,else turn right
         if (angle_diff > threshold) and (angle_diff < 90):
             turn = TURN_LEFT
         elif angle_diff <= threshold or angle_diff == 90:
@@ -233,7 +225,6 @@ def policy_init(S):
         policy[s] = (motion, turn)
 
     return policy
-
 
 # Problem 3(b)
 # Write a function to generate and plot a trajectory of a robot given policy matrix/array, initial state s0, and error probability pe.
@@ -340,11 +331,10 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
 
     return trajectory
 
-
 # Problem 3(c)
 # Generate and plot a trajectory of a robot using policy 0 starting in state x = 1; y = 6; h = 6 (i.e. # top left corner, pointing down). Assume pe = 0.
 
-generate_trajectory(policy_init(S), (1, 6, 6), 0)
+generate_trajectory(policy_init(S), s0, 0)
 
 # Problem 3(d)
 # Write a function to compute the policy evaluation of a policy. That is, this function should return a matrix/array of values v = V (s) when indexed by state s. The inputs will be a matrix/array storing as above, along with discount factor.
@@ -388,7 +378,6 @@ def policy_eval(S, V, policy, reward, pe = 0, discount_factor = 1, threshold = 0
 # The value of the trajectory in 3(c). (lambda = 0.9)
 
 V = policy_eval(S, {}, policy_init(S), reward, 0, 0.9, 0.001)
-s0 = (1, 6, 6)
 print("The value V(s0) is:", V[s0])
 
 # Problem 3(f)
@@ -419,7 +408,6 @@ def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
 
     return policy
 
-
 # Problem 3(g)
 # Combine your functions above in a new function that computes policy iteration on the system, returning optimal policy pi* with optimal value V*.
 # Policy Iteration converges when pi(i+1) == pi(i)
@@ -444,10 +432,8 @@ def policy_iteration(S, V, policy, reward, pe = 0, discount_factor = 1):
         else:
             policy = policy_new
 
-
 # Problem 3(h) and 3(i)
 # Run this function to recompute and plot the trajectory and value of the robot described in 3(c) under the optimal policy pi*. 
-
 def policy_iteration_timing(reward = reward, pe = 0):
     # reward: reward function to be used for policy evaluation.
     # pe：the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
@@ -459,7 +445,6 @@ def policy_iteration_timing(reward = reward, pe = 0):
     end = time.time()
     
     # Recompute and plot the trajectory and value of the robot under optimal policy
-    s0 = (1, 6, 6)
     trajectory = generate_trajectory(optimal_policy, s0, pe, show = False)
     #output time and value
     file.write('Policy iteration timing:\n')
@@ -513,7 +498,6 @@ def value_iteration(S, policy, reward, pe = 0, discount_factor = 0.9, threshold 
 
 # Problem 4(b) and 4(c)
 # Compute and plot the trajectory, value of the robot described in 3(c) under the optimal policy pi*. Compare with the results from policy iteration in 3(h).
-
 def value_iteration_timing(reward = reward, pe = 0):
     # reward: reward function to be used for policy evaluation.
     # pe：the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
@@ -524,7 +508,6 @@ def value_iteration_timing(reward = reward, pe = 0):
     optimal_policy, optimal_V = value_iteration(S, policy_init(S), reward, pe, discount_factor = 0.9)
     end = time.time()
     # Recompute and plot the trajectory and value of the robot under optimal policy
-    s0 = (1, 6, 6)
     trajectory = generate_trajectory(optimal_policy, s0, pe, show = False)
     #output time and value
     file.write('Value iteration timing: \n')
@@ -541,7 +524,7 @@ value_iteration_timing(reward, 0)
 # Recompute the robot trajectory and value given initial conditions from 3(c) but with pe = 0.25.
 
 policy_iteration_timing(reward, 0.25)
-value_iteration_timing(reward_new, 0.25)
+value_iteration_timing(reward, 0.25)
 
 # Problem 5(b)
 # Assume reward +1 applied only when robot is pointing straight down (h = 6 in the goal square; the reward is 0 otherwise. Recompute the trajectories and values given initial conditions from 3(c) with pe belongs to {0, 0.25}
@@ -564,7 +547,6 @@ def reward_new(s):
     # Every other state has reward 0
     else:
         return 0
-
 
 # Complete test lists:
 while True:
