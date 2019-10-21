@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import random
 import time
 
+file = open('running_time.txt', 'a+')
+
 # Defining Actions
 STILL = 0
 FORWARDS = 1
@@ -15,6 +17,7 @@ TURN_RIGHT = 1
 turn_list = [NOT_TURN, TURN_LEFT, TURN_RIGHT]
 
 GOAL = (5, 6)
+s0 = (1, 6, 6)
 
 # Define grid world
 L = 8
@@ -331,6 +334,8 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
     # Plot the grid world
     if show:
         plt.show()
+    else:
+        plt.savefig('./img-'+time.strftime("%H%M%S", time.localtime())+'.jpg')
 
     return trajectory
 
@@ -338,8 +343,14 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
 # Problem 3(c)
 # Generate and plot a trajectory of a robot using policy 0 starting in state x = 1; y = 6; h = 6 (i.e. # top left corner, pointing down). Assume pe = 0.
 
-### generate_trajectory(policy_init(S), (1, 6, 6), 0)
-
+'''
+start = time.time()
+generate_trajectory(policy_init(S), (1, 6, 6), 0, False)
+end = time.time()
+file.write('round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
+file.write('time: ' + str(end-start) + ' sec.\n\n')
+print(str(end-start) + ' sec')
+'''
 
 # Problem 3(d)
 # Write a function to compute the policy evaluation of a policy. That is, this function should return a matrix/array of values v = V (s) when indexed by state s. The inputs will be a matrix/array storing as above, along with discount factor.
@@ -382,12 +393,12 @@ def policy_eval(S, V, policy, reward, pe = 0, discount_factor = 1, threshold = 0
 # Problem 3(e)
 # The value of the trajectory in 3(c). (lambda = 0.9)
 
-### V = policy_eval(S, {}, policy_init(S), reward, 0, 0.9, 0.001)
+'''
+V = policy_eval(S, {}, policy_init(S), reward, 0, 0.9, 0.001)
 s0 = (1, 6, 6)
-### print("The value V(s0) is:", V[s0])
-
+print("The value V(s0) is:", V[s0])
 # Running result: threshold = 0.1, value = -2.1827644307687253, running time = 135.9s
-
+'''
 
 # Problem 3(f)
 # Write a function that returns a matrix/array giving the optimal policy given a one-step lookahead on value V .
@@ -429,7 +440,7 @@ def policy_iteration(S, V, policy, reward, pe = 0, discount_factor = 1):
     # Keep updating policy until optimal value is found.
     while True:
         # Calculate value of each state
-        V = policy_eval(S, V, policy, reward, pe, discount_factor, 1)
+        V = policy_eval(S, V, policy, reward, pe, discount_factor, 0.01)
         # Update policy by one step lookahead
         policy_new = policy_one_step_lookahead(S, V, reward, pe, discount_factor)
         # If policy doesn't change, the iteration is done
@@ -438,23 +449,28 @@ def policy_iteration(S, V, policy, reward, pe = 0, discount_factor = 1):
         else:
             policy = policy_new
         # For debug
-        print('value = '+str(V[(1,6,6)]))
+        print('Value = ' + str(V[s0]))
 
 
 # Problem 3(h) and 3(i)
 # Run this function to recompute and plot the trajectory and value of the robot described in 3(c) under the optimal policy pi*. 
-# Keep track of the compute time.
-### start = time.time()
-# Optimal_policy calculation
-### optimal_policy, optimal_V = policy_iteration(S, {}, policy_init(S), reward, 0, 0.9)
 
-# Recompute and plot the trajectory and value of the robot under optimal policy
-s0 = (1, 6, 6)
-### trajectory = generate_trajectory(optimal_policy, s0, pe = 0, show = True)
-### end = time.time()
-### print("Trajectory from %s to the goal is: " % str(s0), trajectory)
-### print("Run Time is %s sec." % str(end - start))
-# Running reult: threshold = 1, value = 3.403192020275376, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 429.80976271629333 sec.
+def policy_iteration_timing():
+    # Keep track of the compute time.
+    start = time.time()
+    # Optimal_policy calculation
+    optimal_policy, optimal_V = policy_iteration(S, {}, policy_init(S), reward, 0, 0.9)
+
+    # Recompute and plot the trajectory and value of the robot under optimal policy
+    # s0 = (1, 6, 6)
+    trajectory = generate_trajectory(optimal_policy, s0, pe = 0, show = False)
+    end = time.time()
+    file.write('Policy iteration timing:\n')
+    file.write('Round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
+    file.write('Run time: ' + str(end-start) + ' sec.\n\n')
+    print("Trajectory from %s to the goal is: " % str(s0), trajectory)
+    print("Run Time is %s sec." % str(end - start))
+    # Running reult: threshold = 1, value = 3.403192020275376, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 429.80976271629333 sec.
 
 
 # Value Iteration
@@ -488,19 +504,32 @@ def value_iteration(S, policy, reward, pe = 0, discount_factor = 0.9, threshold 
             diff = max(diff, np.abs(value_best_action - V[s]))  
             # Update value function
             V[s] = value_best_action
+        # For debug
+        print("Value = " + str(V[s0]))
     return policy, V 
 
 # Problem 4(b) and 4(c)
-# Compute and plot the trajectory, value of the robot described in 3(c) under the optimal policy 
-# pi*. Compare with the results from policy iteration in 3(h).
-# Runtime analysis.
-start = time.time()
-# Optimal_value calculation
-optimal_policy, optimal_V = value_iteration(S, policy_init(S), reward, pe = 0, discount_factor = 0.9)
+# Compute and plot the trajectory, value of the robot described in 3(c) under the optimal policy pi*. Compare with the results from policy iteration in 3(h).
 
-#Recompute and plot the trajectory and value of the robot under optimal policy
-trajectory = generate_trajectory(optimal_policy, s0 = (1, 6, 6), pe = 0, show = True)
-end = time.time()
-print("Trajectory from %s to the goal is: " % str(s0), trajectory)
-print("Run Time is %s sec" % str(end - start))
+def value_iteration_timing():
+    # Runtime analysis.
+    start = time.time()
+    # Optimal_value calculation
+    optimal_policy, optimal_V = value_iteration(S, policy_init(S), reward, pe = 0, discount_factor = 0.9)
 
+    # Recompute and plot the trajectory and value of the robot under optimal policy
+    s0 = (1, 6, 6)
+    trajectory = generate_trajectory(optimal_policy, s0, pe = 0, show = False)
+    end = time.time()
+    file.write('Value iteration timing: \n')
+    file.write('Round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
+    file.write('Run time: ' + str(end-start) + ' sec.\n\n')
+    print("Trajectory from %s to the goal is: " % str(s0), trajectory)
+    print("Run Time is %s sec." % str(end - start))
+    # Running result: threshold = 0.01, value = 3.8105780355886414, Trajectory from (1, 6, 6) to the goal is:  [[(1, 6, 6), (1, 0)], [(1, 5, 6), (1, -1)], [(1, 4, 5), (1, -1)], [(1, 3, 4), (1, 0)], [(2, 3, 4), (1, 0)], [(3, 3, 4), (1, 0)], [(4, 3, 4), (1, 1)], [(5, 3, 5), (-1, 0)], [(5, 4, 5), (-1, 0)], [(5, 5, 5), (-1, 0)], [(5, 6, 5), (0, 0)]], Run Time is 1304.1105811595917 sec.
+
+
+# Problem 5(a)
+# Recompute the robot trajectory and value given initial conditions from 3(c) but with pe = 25%.
+
+file.close()
