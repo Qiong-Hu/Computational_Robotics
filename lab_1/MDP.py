@@ -241,6 +241,7 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
     # policy: a directory of all policy
     # s0 = (x, y, h) : initial state
     # pe: the error probability pe to pre-rotate when choosing to move.
+    # show：whether show the plot or not
     # Return: Trajectory including passing states and actions on each state
 
     # Confirm the feasibility of pe
@@ -343,20 +344,13 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
 # Problem 3(c)
 # Generate and plot a trajectory of a robot using policy 0 starting in state x = 1; y = 6; h = 6 (i.e. # top left corner, pointing down). Assume pe = 0.
 
-'''
-start = time.time()
-generate_trajectory(policy_init(S), (1, 6, 6), 0, False)
-end = time.time()
-file.write('round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
-file.write('time: ' + str(end-start) + ' sec.\n\n')
-print(str(end-start) + ' sec')
-'''
+generate_trajectory(policy_init(S), (1, 6, 6), 0)
 
 # Problem 3(d)
 # Write a function to compute the policy evaluation of a policy. That is, this function should return a matrix/array of values v = V (s) when indexed by state s. The inputs will be a matrix/array storing as above, along with discount factor.
 def policy_eval(S, V, policy, reward, pe = 0, discount_factor = 1, threshold = 0.001):
     # State space S
-    # Value function V: for iteration, empty as initialization
+    # Value function V: for iteration
     # policy {S: A}: shaped dictionary representing the policy.
     # reward: reward function to be used for policy evaluation.
     # pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5
@@ -393,21 +387,19 @@ def policy_eval(S, V, policy, reward, pe = 0, discount_factor = 1, threshold = 0
 # Problem 3(e)
 # The value of the trajectory in 3(c). (lambda = 0.9)
 
-'''
 V = policy_eval(S, {}, policy_init(S), reward, 0, 0.9, 0.001)
 s0 = (1, 6, 6)
 print("The value V(s0) is:", V[s0])
-# Running result: threshold = 0.1, value = -2.1827644307687253, running time = 135.9s
-'''
 
 # Problem 3(f)
 # Write a function that returns a matrix/array giving the optimal policy given a one-step lookahead on value V .
 def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
+    # S: state space
     # V: evaluated value using the current policy
     # reward: reward function to be used for policy evaluation.
     # pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
     # discount_factor: Lambda
-    # Return policy as dict: {next state, optimal policy}
+    # Return policy as dict: {next state : optimal policy}
     
     policy = {}
     
@@ -432,8 +424,11 @@ def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
 # Combine your functions above in a new function that computes policy iteration on the system, returning optimal policy pi* with optimal value V*.
 # Policy Iteration converges when pi(i+1) == pi(i)
 def policy_iteration(S, V, policy, reward, pe = 0, discount_factor = 1):
+    # S: state space
+    # V: evaluated value using the current policy
     # policy: policy to be iterated
     # reward: reward function to be used for policy evaluation.
+    # pe：the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
     # discount_factor: lambda
     # Returns (policy, value).
 
@@ -448,23 +443,25 @@ def policy_iteration(S, V, policy, reward, pe = 0, discount_factor = 1):
             return policy, V
         else:
             policy = policy_new
-        # For debug
-        ### print('Value = ' + str(V[s0]))
 
 
 # Problem 3(h) and 3(i)
 # Run this function to recompute and plot the trajectory and value of the robot described in 3(c) under the optimal policy pi*. 
 
 def policy_iteration_timing(reward = reward, pe = 0):
+    # reward: reward function to be used for policy evaluation.
+    # pe：the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
+    
     # Keep track of the compute time.
     start = time.time()
     # Optimal_policy calculation
     optimal_policy, optimal_V = policy_iteration(S, {}, policy_init(S), reward, pe, 0.9)
-
-    # Recompute and plot the trajectory and value of the robot under optimal policy
-    # s0 = (1, 6, 6)
-    trajectory = generate_trajectory(optimal_policy, s0, pe, show = False)
     end = time.time()
+    
+    # Recompute and plot the trajectory and value of the robot under optimal policy
+    s0 = (1, 6, 6)
+    trajectory = generate_trajectory(optimal_policy, s0, pe, show = False)
+    #output time and value
     file.write('Policy iteration timing:\n')
     file.write('Round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
     file.write('Optimal value: ' + str(optimal_V[s0]) + '\n')
@@ -477,6 +474,12 @@ policy_iteration_timing(reward, 0)
 # Value Iteration
 # Problem 4(a)
 def value_iteration(S, policy, reward, pe = 0, discount_factor = 0.9, threshold = 0.01):
+    # S: state space
+    # policy: policy to be iterated
+    # reward: reward function to be used for policy evaluation.
+    # pe：the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
+    # discount_factor: lambda
+    # threshold: We stop evaluation once our value function change is less than theta for all states. 
     # Return optimal policy, optimal value
 
     # Initialize Values
@@ -505,23 +508,25 @@ def value_iteration(S, policy, reward, pe = 0, discount_factor = 0.9, threshold 
             diff = max(diff, np.abs(value_best_action - V[s]))  
             # Update value function
             V[s] = value_best_action
-        # For debug
-        ### print("Value = " + str(V[s0]))
+
     return policy, V 
 
 # Problem 4(b) and 4(c)
 # Compute and plot the trajectory, value of the robot described in 3(c) under the optimal policy pi*. Compare with the results from policy iteration in 3(h).
 
 def value_iteration_timing(reward = reward, pe = 0):
+    # reward: reward function to be used for policy evaluation.
+    # pe：the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
+    
     # Runtime analysis.
     start = time.time()
     # Optimal_value calculation
     optimal_policy, optimal_V = value_iteration(S, policy_init(S), reward, pe, discount_factor = 0.9)
-
+    end = time.time()
     # Recompute and plot the trajectory and value of the robot under optimal policy
     s0 = (1, 6, 6)
     trajectory = generate_trajectory(optimal_policy, s0, pe, show = False)
-    end = time.time()
+    #output time and value
     file.write('Value iteration timing: \n')
     file.write('Round: ' + time.strftime("%H%M%S", time.localtime()) + '\n')
     file.write('Optimal value: ' + str(optimal_V[s0]) + '\n')
@@ -530,7 +535,6 @@ def value_iteration_timing(reward = reward, pe = 0):
     ### print("Run Time is %s sec." % str(end - start))
 
 value_iteration_timing(reward, 0)
-
 
 # Additional Scenarios
 # Problem 5(a) 
@@ -564,18 +568,6 @@ def reward_new(s):
 
 # Complete test lists:
 while True:
-    file.write('reward, pe = 0\n')
-    policy_iteration_timing(reward, 0)
-
-    file.write('reward, pe = 0\n')
-    value_iteration_timing(reward, 0)
-
-    file.write('reward, pe = 0.25\n')
-    policy_iteration_timing(reward, 0.25)
-
-    file.write('reward, pe = 0.25\n')
-    value_iteration_timing(reward, 0.25)
-
     file.write('new reward, pe = 0\n')
     policy_iteration_timing(reward_new, 0)
 
