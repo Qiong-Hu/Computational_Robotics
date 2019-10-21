@@ -271,18 +271,28 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
         # Add state and action now in to trajectory
         trajectory.append([s_now, policy[s_now]])
 
-    # Grid world initilization
-    fig = plt.figure(figsize = (L, W))
+    # Grid world initialization
+    fig = plt.figure(figsize = (L - 2, W - 2))
     map = fig.add_subplot(1,1,1)
     plt.xlim((0, L))
     plt.ylim((0, W))
-    plt.grid(True, color = 'k')
+    x_locator = plt.MultipleLocator(1)
+    y_locator = plt.MultipleLocator(1)
+    map.xaxis.set_minor_locator(x_locator)
+    map.yaxis.set_minor_locator(y_locator)
+    plt.grid(color = 'k', which = 'minor')
+    plt.tick_params(width = 0)
+    plt.tick_params(which = 'minor', width = 0)
+    x_labels = np.arange(0, L, 1)
+    y_labels = np.arange(0, W, 1)
+    plt.xticks(x_labels + 0.5, x_labels)
+    plt.yticks(y_labels + 0.5, y_labels)
 
     # Place red markers
     edge1 = plt.Rectangle((0,0), 1, L, color = 'r')
     edge2 = plt.Rectangle((0,0), W, 1, color = 'r')
-    edge3 = plt.Rectangle((L-1,0), 1, L, color = 'r')
-    edge4 = plt.Rectangle((0,W-1), W, 1, color = 'r')
+    edge3 = plt.Rectangle((L - 1,0), 1, L, color = 'r')
+    edge4 = plt.Rectangle((0,W - 1), W, 1, color = 'r')
     map.add_patch(edge1)
     map.add_patch(edge2)
     map.add_patch(edge3)
@@ -368,9 +378,9 @@ def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.00
 
 # Problem 3(e)
 # The value of the trajectory in 3(c). (lambda = 0.9)
-V = policy_eval(S, policy_init(S), reward, 0, 0.9, 0.1)
-s0 = (1, 6, 6)
-print("The value V(s0) is:", V[s0])
+# V = policy_eval(S, policy_init(S), reward, 0, 0.9, 0.1)
+# s0 = (1, 6, 6)
+# print("The value V(s0) is:", V[s0])
 
 
 # Problem 3(f)
