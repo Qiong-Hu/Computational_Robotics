@@ -212,7 +212,7 @@ def policy_init(S):
 
         # if target is in the left front of robot or right back, turn left
         # if they are in one line, not turn
-        # else turn right 
+        # else turn right
         if (angle_diff > threshold) and (angle_diff < 90):
             turn = TURN_LEFT
         elif angle_diff <= threshold or angle_diff == 90:
@@ -249,11 +249,11 @@ def generate_trajectory(policy, s0, pe = 0, show = True):
 
         # Get probability of all possible next states
         P_states = next_state(s_now, policy[s_now], pe)
-        
+
         states = list(P_states.keys())
         probs = list(P_states.values())
         # Choose next states according to probs
-        if len(probs) == 1:    
+        if len(probs) == 1:
             s_next = states[0]
             s_now = s_next
         else:
@@ -345,7 +345,7 @@ def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.00
         discount_factor: Lambda discount factor.
         pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5
         threshold: We stop evaluation once our value function change is less than theta for all states.
-        
+
     Returns:
         Dictionary of shape {S: V} representing the value function.
     """
@@ -353,7 +353,7 @@ def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.00
     V = {}
     for s in S:
         V[s] = 0
-    
+
     while True:
         diff = 0
         # For each state, perform the evaluation
@@ -361,8 +361,8 @@ def policy_eval(S, policy, reward, pe = 0, discount_factor = 1, threshold = 0.00
             v = 0
             # Look at the possible next states:
             P_states = next_state(s, policy[s], pe)
-            states=list(P_states.keys())
-            probs=list(P_states.values())
+            states = list(P_states.keys())
+            probs = list(P_states.values())
     # Calculate the value:
             for i in range(len(states)):
                 # Calculate the expected value
@@ -391,28 +391,42 @@ def policy_one_step_lookahead(S, V, reward, pe = 0, discount_factor = 1):
     # pe: the error probability pe to pre-rotate when chosing to move. 0 <= pe <= 0.5.
     # discount_factor: Lambda
     # Return policy as dict: {next state, optimal policy}
-    
+
     policy = {}
-    
-    for s in S: 
+
+    for s in S:
         # Initialize all action value as 0.
         action = np.zeros(NA)
         for i in range(NA):
             # Check the possible next state for each action.
             P_states = next_state(s, A[i], pe)
-            states=list(P_states.keys())
-            probs=list(P_states.values()) 
+            states = list(P_states.keys())
+            probs = list(P_states.values())
             # Calculate value of each action.
             for j in range(len(states)):
                 action[i] += probs[j] * (reward(states[j]) + discount_factor * V[states[j]])
 
-       # Get the best action 
+       # Get the best action
             best_action_index = np.argmax(action)
             policy[s] = A[best_action_index]
 
     return policy
 
 # Problem 3(g)
-# def policy_iteration
-# Combine your functions 
-
+def policy_iteration(S, policy, reward, pe = 0, discount_factor = 1.0):
+    # Combine your functions above in a new function that computes policy iteration on the system, # returning optimal policy pi* with optimal value V*.
+    # policy: policy to be iterated
+    # reward: reward function to be used for policy evaluation.
+    # discount_factor: lambda
+    # Returns (policy, value).
+    # Keep updating policy until optimal value is found.
+    while True:
+        # Calculate value of each state
+        V = policy_eval(S, policy, reward, pe, discount_factor, 0.001)
+        # Update policy by one step lookahead
+        policy_new = policy_one_step_lookahead(S, V, reward, pe, discount_factor)
+        # If policy doesn't change, the iteration is done
+        if policy_new == policy:
+            return policy, V
+        else:
+            policy = policy_new
