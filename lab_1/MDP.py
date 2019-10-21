@@ -535,6 +535,8 @@ def value_iteration_timing(reward = reward, pe = 0):
 # Problem 5(a) 
 # Recompute the robot trajectory and value given initial conditions from 3(c) but with pe = 0.25.
 
+policy_iteration_timing(reward, 0.25)
+value_iteration_timing(reward_new, 0.25)
 
 # Problem 5(b)
 # Assume reward +1 applied only when robot is pointing straight down (h = 6 in the goal square; the reward is 0 otherwise. Recompute the trajectories and values given initial conditions from 3(c) with pe belongs to {0, 0.25}
@@ -559,51 +561,35 @@ def reward_new(s):
         return 0
 
 
-# Problem 5(c)
-# Qualitatively describe some conclusions from these scenarios.
-
 # Complete test lists:
-count = 1
 while True:
     file.write('reward, pe = 0\n')
     policy_iteration_timing(reward, 0)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
 
     file.write('reward, pe = 0\n')
     value_iteration_timing(reward, 0)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
 
     file.write('reward, pe = 0.25\n')
     policy_iteration_timing(reward, 0.25)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
 
     file.write('reward, pe = 0.25\n')
     value_iteration_timing(reward, 0.25)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
 
     file.write('new reward, pe = 0\n')
     policy_iteration_timing(reward_new, 0)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
 
     file.write('new reward, pe = 0\n')
     value_iteration_timing(reward_new, 0)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
 
     file.write('new reward, pe = 0.25\n')
     policy_iteration_timing(reward_new, 0.25)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
 
     file.write('new reward, pe = 0.25\n')
     value_iteration_timing(reward_new, 0.25)
-    print('Round ' + str(count) + 'done.')
-    count = count + 1
+
+
+# Problem 5(c)
+# Qualitatively describe some conclusions from these scenarios.
 
 
 file.close()
