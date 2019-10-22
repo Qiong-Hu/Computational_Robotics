@@ -46,6 +46,12 @@ Round: 104604
 Optimal value: 1.2973583436832024
 Run Time is 1331.9698815345764 sec.
 
+reward, pe = 0
+Policy iteration
+Round: 105733
+Optimal value: 3.8737050904194734
+Run Time is 688.3806583881378 sec.
+
 reward, pe = 0.25
 Policy iteration
 Round: 114144
