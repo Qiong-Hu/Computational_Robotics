@@ -1,0 +1,65 @@
+reward, pe = 0
+Policy iteration
+Round: 022723
+Optimal value: 3.8737050904194734
+Run time: 634.9716763496399 sec.
+
+reward, pe = 0
+Value iteration
+Round: 024719
+Optimal value: 3.8105780355886414
+Run time: 1196.0315508842468 sec
+
+reward, pe = 0.25
+Policy iteration
+Round: 032313
+Optimal value: 1.829060075453157
+Run time: 2153.6250483989716 sec
+
+reward, pe = 0.25
+Value iteration
+Round: 034420
+Optimal value: 1.7878707758678631
+Run time: 1267.6248624324799 sec
+
+new reward, pe = 0
+Policy iteration
+Round: 093958
+Optimal value: 3.874137374487818
+Run Time is 664.8848834037781 sec.
+
+new reward, pe = 0
+Value iteration
+Round: 100053
+Optimal value: 3.8105780355886414
+Run Time is 1255.52663230896 sec.
+
+new reward, pe = 0.25
+Policy iteration
+Round: 102352
+Optimal value: 1.3277784784376259
+Run Time is 1379.1776702404022 sec.
+
+new reward, pe = 0.25
+Value iteration
+Round: 104604
+Optimal value: 1.2973583436832024
+Run Time is 1331.9698815345764 sec.
+
+reward, pe = 0
+Policy iteration
+Round: 105733
+Optimal value: 3.8737050904194734
+Run Time is 688.3806583881378 sec.
+
+reward, pe = 0.25
+Policy iteration
+Round: 114144
+Optimal value: 1.829060075453157
+Run Time is 1441.2986342906952 sec.
+
+reward, pe = 0.25
+Policy iteration
+Round: 140232
+Optimal value: 1.829060075453157
+Run Time is 1447.5702829360962 sec.
