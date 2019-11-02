@@ -9,6 +9,11 @@ R = 25      # unit: mm, radius of the wheels
 L = 100     # unit: mm, length of the robot
 W = 90      # unit: mm, width of the robot
 wmax = 1    # unit: RPS, maximum angular velocity of the wheels
+<<<<<<< Updated upstream
+=======
+m = 10000   # unit: mm, length of grid
+n = 10000   # unit: mm, width of grid
+>>>>>>> Stashed changes
 
 show_animation = True
 
@@ -16,11 +21,15 @@ show_animation = True
 # Problem 1(a)
 # Define rebot model
 # input (action) space
+<<<<<<< Updated upstream
 # A = {a}, a = (w1, w2). w1 and w2 represent angular velocity of wheel 1 and wheel 2. w1, w2 ∈ [-wmax, wmax] = [-1,1] RPS
+=======
+# A = {a}, a = (w1, w2). w1 and w2 represent angular velocity of wheel 1 and wheel 2. w1, w2 ∈ [-wmax, wmax] = [-1, 1] RPS
+>>>>>>> Stashed changes
 D_A = 2     # The dimensionality is 2 
 
 # robot state (configuration) space
-# S = {s}, s = (x, y, θ). Coordinate (x, y) is the location of the centerpoint of the wheels, direction θ is the direction of the robot.
+# S = {s}, s = (x, y, θ). Coordinate (x, y) represents the location of the centerpoint of the wheels, θ is the angle between +X and the direction of the robot, θ∈[0,2*pi)
 D_S = 3     # The dimensionality is 3
 
 # operational space
@@ -36,10 +45,17 @@ D_O = 3     # The dimensionality is 3
 
 
 # Problem 1(b)
+<<<<<<< Updated upstream
 # Define the (continuous space) system model
 # Assume a fully observable system, i.e. the state itself is directly accessible with no sensor model.
 
 # state space： a m * n rectangular environment with any direction of the robot
+=======
+# Define the (continuous space) system model.
+# Assume a fully observable system, i.e. the state itself is directly accessible with no sensor model.
+
+# state space：a m * n rectangular environment with any direction of the robot
+>>>>>>> Stashed changes
 m = 1
 n = 1
 
@@ -77,6 +93,7 @@ def find_closestNode(V, xt):
     # For delta_y: distance between y and yt1 divided by the maximum velocity of the robot, vy_max = 2 * pi * R * wmax
     # For delta_theta: difference between theta and thetat1 divided by the maximum angular velocity of the robot: wmax_robot = max{2 * pi * R * (w1 - w2)/W} = 4 * pi* R * wmax/W
     # By dividing by the maximum value of each motion, the weighted distance of three different dimensions that the robot can reach are normalized.
+<<<<<<< Updated upstream
     weighted_dist = ((V[0][0] - xt[0])/(2 * math.pi * R * wmax))**2 +
                     ((V[0][1] - xt[1])/(2 * math.pi * R * wmax))**2 + 
                     ((V[0][2] - xt[2])/(4 * math.pi * R * wmax/W))**2
@@ -85,10 +102,17 @@ def find_closestNode(V, xt):
         dist = ((point[0] - xt[0])/(2 * math.pi * R * wmax))**2 +
                ((point[1] - xt[1])/(2 * math.pi * R * wmax))**2 +
                ((point[2] - xt[2])/(4 * math.pi * R * wmax/W))**2
+=======
+    weighted_dist = ((V[0][0] - xt[0])/(2 * math.pi * R * wmax))**2 + ((V[0][1] - xt[1])/(2 * math.pi * R * wmax))**2 + ((V[0][2] - xt[2])/(4 * math.pi * R * wmax/W))**2
+
+    for point in V:
+        dist = ((point[0] - xt[0])/(2 * math.pi * R * wmax))**2 + ((point[1] - xt[1])/(2 * math.pi * R * wmax))**2 + ((point[2] - xt[2])/(4 * math.pi * R * wmax/W))**2
+>>>>>>> Stashed changes
         if dist < weighted_dist:
             closest_node = point
             weighted_dist = dist
     return closest_node
+<<<<<<< Updated upstream
 
 
 # Problem 2(b)
@@ -165,3 +189,5 @@ def plottrajectory(trajectory):
 
 # Problem 2(c)
 # Given a smooth robot trajectory in C-space and obstacles defined in operational space, determine whether this trajectory is collision-free.
+=======
+>>>>>>> Stashed changes
