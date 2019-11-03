@@ -188,6 +188,15 @@ def plottrajectory(trajectory):
 
 
 # Problem 2(c)
-# Given a smooth robot trajectory in C-space and obstacles defined in operational space, determine whether this trajectory is collision-free.
-=======
->>>>>>> Stashed changes
+# Given a smooth robot trajectory in C-space and obstacles defined in operational space, determine whether this trajectory is collision-free. 
+
+def plotobstacles(obstacles, ax):
+    for obstacle in obstacles:
+        rec = plt.Rectangle((obstacle[0],obstacle[1]), obstacle[2], obstacle[3], angle = obstacle[4], color = 'k')
+        ax.add_patch(rec)
+    return ax
+
+def plotpoint(point):
+    plt.arrow(point[0], point[1], 0.5 * np.cos(point[2]), 0.5*np.sin(point[2]), color='r', width=m / 100)
+    plt.plot(point[0], point[1],'bo')
+
