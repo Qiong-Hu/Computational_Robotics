@@ -16,15 +16,14 @@ wmax_robot = 4 * math.pi* R * wmax / W      # unit: rad/s, maximum angular veloc
 
 show_animation = True
 
-
 # Problem 1(a)
 # Define rebot model
 # input (action) space
-# A = {a}, a = (w1, w2). w1 and w2 represent angular velocity of wheel 1 and wheel 2. w1, w2 ∈ [-wmax, wmax] = [-1,1] RPS
+# A = {a}, a = (w1, w2). w1 and w2 represent angular velocity of wheel 1 and wheel 2. w1, w2 ∈ [-wmax, wmax] = [-1, 1] RPS
 D_A = 2     # The dimensionality is 2 
 
 # robot state (configuration) space
-# S = {s}, s = (x, y, θ). Coordinate (x, y) is the location of the centerpoint of the wheels, direction θ is the direction of the robot.
+# S = {s}, s = (x, y, θ). Coordinate (x, y) represents the location of the centerpoint of the wheels, θ is the angle between +X and the direction of the robot, θ∈[0,2*pi)
 D_S = 3     # The dimensionality is 3
 
 # operational space
@@ -32,15 +31,15 @@ D_S = 3     # The dimensionality is 3
 # v1 and v2 represent velocity of wheel 1 and wheel 2
 # v1 = 2 * pi * R * w1 mm/s 
 # v2 = 2 * pi * R * w2 mm/s
-# v = (v1 + v2)/2 mm/s
+# v = (v1 + v2) / 2 mm/s
 # vx = v cos(θ) = pi * R * (w1 + w2) * cos(θ) mm/s
 # vy = v sin(θ) = pi * R * (w1 + w2) * sin(θ) mm/s
-# w = 2 * pi * R * (w1 - w2)/W rad/s     # positive: clockwise, negative: anti-clockwise
+# w = 2 * pi * R * (w1 - w2) / W rad/s     # positive: clockwise, negative: anti-clockwise
 D_O = 3     # The dimensionality is 3
 
 
 # Problem 1(b)
-# Define the (continuous space) system model
+# Define the (continuous space) system model.
 # Assume a fully observable system, i.e. the state itself is directly accessible with no sensor model.
 
 # Define map
@@ -53,7 +52,7 @@ n = 10000   # unit: mm, width of the map
 
 # start state: s0=[x0, y0, θ0]
 s0=[0, 0, 0]
-    
+
 # target state: s1=[xt, yt, θt]
 s1=[0, 0, 0]
 
@@ -80,12 +79,12 @@ def find_closestNode(V, xt):
     # Calculate the weighted distance between a point in set V to the target point xt
     # For delta_x: distance between x and x_t divided by the maximum velocity of the robot vx_max
     # For delta_y: distance between y and y_t divided by the maximum velocity of the robot vy_max
-    # For delta_theta: difference between theta and thetat1 divided by the maximum angular velocity of the robot wmax_robot
+    # For delta_theta: difference between theta and theta_t1 divided by the maximum angular velocity of the robot wmax_robot
     # By dividing by the maximum value of each motion, the weighted distance of three different dimensions that the robot can reach is normalized.
-    weighted_dist = ((V[0][0] - xt[0])/(2 * math.pi * R * wmax))**2 + ((V[0][1] - xt[1])/(2 * math.pi * R * wmax))**2 + ((V[0][2] - xt[2])/(4 * math.pi * R * wmax / W))**2
+    weighted_dist = ((V[0][0] - xt[0]) / (2 * math.pi * R * wmax)) ** 2 + ((V[0][1] - xt[1]) / (2 * math.pi * R * wmax)) ** 2 + ((V[0][2] - xt[2]) / (4 * math.pi * R * wmax / W)) ** 2
 
     for point in V:
-        dist = ((point[0] - xt[0])/(2 * math.pi * R * wmax))**2 + ((point[1] - xt[1])/(2 * math.pi * R * wmax))**2 + ((point[2] - xt[2])/(4 * math.pi * R * wmax / W))**2
+        dist = ((point[0] - xt[0]) / (2 * math.pi * R * wmax)) ** 2 + ((point[1] - xt[1]) / (2 * math.pi * R * wmax)) ** 2 + ((point[2] - xt[2]) / (4 * math.pi * R * wmax / W)) ** 2
         if dist < weighted_dist:
             closest_node = point
             weighted_dist = dist
@@ -138,7 +137,7 @@ def generate_trajectory(xi, xt):
         end = [xt[0], xt[1], end[2]]
         trajectory.append(end)
         # print(trajectory)
-
+        end = [xt[0], xt[1], end[2]]
         remain_time -= req_dis_time 
         diff_angle = (end[2] - xt[2]) % (2 * math.pi)
         req_dis_time = (diff_angle % math.pi) / wmax_robot
@@ -161,9 +160,6 @@ def plottrajectory(trajectory, ax):
         # plot robot, undo
     return ax
 
-# For debug
-# fig = plt.figure()
-# ax = fig.add_subplot(1,1,1)
-# plottrajectory([[0,0,0],[0,1,0],[1,1,0]], fig)
-# plt.show()
+
+
 
