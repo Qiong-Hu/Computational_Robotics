@@ -210,7 +210,7 @@ def cross(p1, p2, p3):
     y2 = p3[1] - p1[1]
     return x1 * y2 - x2 * y1
 
-# determine whether two line segments are intersectant
+# determine whether two line segments are intersecting
 def IsIntersec(p1, p2, p3, p4):
     # (p1, p2) defines line 1, (p3, p4) defines line 2
     # If there is an intersection p0, then p0 is on both lines, so min{p1, p2} <= p0 <= max{p1, p2} and min{p3, p4} <= p0 <= max{p3, p4} are satisfied for both x component and y component
@@ -219,7 +219,6 @@ def IsIntersec(p1, p2, p3, p4):
         and max(p1[1], p2[1]) >= min(p3[1], p4[1]) 
         and max(p3[1], p4[1]) >= min(p1[1], p2[1])): 
 
-        # 
         if(cross(p1, p2, p3) * cross(p1, p2, p4) <= 0
            and cross(p3, p4, p1) * cross(p3, p4, p2) <= 0):
             result = True
@@ -252,14 +251,14 @@ def isCollisionTrajectory(trajectory, obstacles):
         z1 = trajectory[i + 1][2]
         steps = 10
         for j in range(steps):
-            xt = j*(x1-x)/(steps-1) + x
-            yt = j*(y1-y)/(steps-1) + y
-            zt = j*(z1-z)/(steps-1) + z
+            xt = j * (x1 - x) / (steps - 1) + x
+            yt = j * (y1 - y) / (steps - 1) + y
+            zt = j * (z1 - z) / (steps - 1) + z
             # four vertices of the robot
-            p1 = [xt+R*math.cos(zt)+W/2*math.sin(zt), yt+R*math.sin(zt)-W/2*math.cos(zt)]
-            p2 = [p1[0]-L*math.cos(zt), p1[1] - L*math.sin(zt)]
-            p3 = [p2[0]-W*math.sin(zt), p2[1]+W*math.cos(zt)]
-            p4 = [p3[0]+L*math.cos(zt), p3[1]+L*math.sin(zt)]
+            p1 = [xt + R * math.cos(zt) + W / 2 * math.sin(zt), yt + R * math.sin(zt) - W / 2 * math.cos(zt)]
+            p2 = [p1[0] - L * math.cos(zt), p1[1] - L * math.sin(zt)]
+            p3 = [p2[0] - W * math.sin(zt), p2[1]+W * math.cos(zt)]
+            p4 = [p3[0] + L * math.cos(zt), p3[1]+L * math.sin(zt)]
             for obstacle in obstacles:
                 w = obstacle[2]
                 h = obstacle[3]
@@ -270,17 +269,17 @@ def isCollisionTrajectory(trajectory, obstacles):
                 p7 = [p6[0] + w * math.cos(zeta),p6[1] + w * math.sin(zeta)]
                 p8 = [p7[0] + h * math.sin(zeta),p7[1] - h * math.cos(zeta)]
                 #whether trajectory is collision free.
-                collision = collision or iscollisionRectangle([p1,p2,p3,p4],[p5,p6,p7,p8])
+                collision = collision or iscollisionRectangle([p1, p2, p3, p4], [p5, p6, p7, p8])
     return collision
 
 
 # Problem 2(d)
-# Combine the above to implement an RRt planner generating a trajectory from a specified initial state to the desired goal region. Visualize the evolution of the RRT.
+# Combine the above to implement an RRT planner generating a trajectory from a specified initial state to the desired goal region. Visualize the evolution of the RRT.
 
-def RRT(s0,s1,obstacles):
+def RRT(s0, s1, obstacles):
     V = [Node(s0)]
     end = Node(s0)
-    while ((end.state[0] - s1[0])/vx_max) ** 2 + ((end.state[1] - s1[1])/vy_max) ** 2 + ((end.state[2] - s1[2]) / wmax_robot) ** 2 >=1:     
+    while ((end.state[0] - s1[0]) / vx_max) ** 2 + ((end.state[1] - s1[1]) / vy_max) ** 2 + ((end.state[2] - s1[2]) / wmax_robot) ** 2 >=1:     
         # get a random point            
         randompoint=[random.uniform(0,m),random.uniform(0,n),random.uniform(0,2*math.pi)]
         start = find_closestNode(V, randompoint)
@@ -291,7 +290,7 @@ def RRT(s0,s1,obstacles):
             end = Node(trajectory[-1])
             end.parent = start
             V.append(end)
-        if len(V)>10000:
+        if len(V) > 10000:
             break
     #print(len(V))
     trajectory = [end.state]
@@ -345,9 +344,9 @@ def RRT_test(s0, s1, obstacles):
     #Caculate time robot need to go for a trajectory
     t = 0
     for i in range(len(trajectory) - 1):
-        dx = trajectory[i+1][0] - trajectory[i][0]
-        dy = trajectory[i+1][1] - trajectory[i][1]
-        dz = trajectory[i+1][2] - trajectory[i][2]
+        dx = trajectory[i + 1][0] - trajectory[i][0]
+        dy = trajectory[i + 1][1] - trajectory[i][1]
+        dz = trajectory[i + 1][2] - trajectory[i][2]
         t += math.sqrt(dx ** 2 + dy ** 2) / vx_max + dz / wmax_robot
     print (t)
     #plot figure
@@ -385,13 +384,53 @@ for i in range(10):
 RRT_test(s0, s1, obstacles)
 '''
 
-
-
 # Prob 3(b)
 # Run some examples that demonstrate the performance. 
 
 # Prob 3(c)
 # Improve on your planner using the RRT* algorithm, and compare to your original RRT planner using the above metrics.
+#Caculate time robot need to go for a trajectory
+def trajectory_time(trajectory):
+    t = 0
+    for i in range(len(trajectory) - 1):
+        dx = trajectory[i+1][0]-trajectory[i][0]
+        dy = trajectory[i+1][1]-trajectory[i][1]
+        dz = trajectory[i+1][2]-trajectory[i][2]
+        t += math.sqrt(dx**2+dy**2)/vx_max + dz/wmax_robot
+    return t
+
+def RRTstar(s0,s1,obstacles):
+    V = [Node(s0)]
+    end = Node(s0)
+    while ((end.state[0] - s1[0])/vx_max) ** 2 + ((end.state[1] - s1[1])/vy_max) ** 2 + ((end.state[2] - s1[2]) / wmax_robot) ** 2 >=1:     
+        # get a random point            
+        randompoint=[random.uniform(0,m),random.uniform(0,n),random.uniform(0,2*math.pi)]
+        start = find_closestNode(V, randompoint)
+        #  generate a trajectory from start to random point
+        trajectory = generate_trajectory(start.state, randompoint)
+        mintime = trajectory_time(trajectory)+start.t
+        # if not collision, add it into V
+        if not iscollisiontrajectory(trajectory,obstacles):
+            end = Node(trajectory[-1])
+            for node in V:
+                if ((end.state[0] - node.state[0])/vx_max) ** 2 + ((end.state[1] - node.state[1])/vy_max) ** 2 + ((end.state[2] - node.state[2]) / wmax_robot) ** 2 <=1:
+                    trajectory = generate_trajectory(node.state, end.state)
+                    if trajectory_time(trajectory)+node.t<mintime:
+                        start = node
+                        mintime = trajectory_time(trajectory)+node.t
+            end.parent = start
+            end.t = mintime
+            V.append(end)
+        if len(V)>20000:
+            break
+
+    trajectory = [end.state]
+    while (end.parent != None):
+        trajectory.append(end.parent.state)
+        end = end.parent
+    return trajectory,V
+
+
 
 # Prob 3(d)
-# Qualitatively describe some conclusions about the effectiveness of your planner for potential tasks your robot may encouter. For example, what happens to your planner in the presence of process noise, i.e. a stocastic system model? How might you modify your algorithm to better handle noise?
+# Qualitatively describe some conclusions about the effectiveness of your planner for potential tasks your robot may encounter. For example, what happens to your planner in the presence of process noise, i.e. a stochastic system model? How might you modify your algorithm to better handle noise?
