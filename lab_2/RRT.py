@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Wedge
 import math
 import random
 import time
@@ -57,14 +56,6 @@ n = 5000   # unit: mm, width of the map
 # obstacles= {obstacle}, obstacle = [x, y, w, h, angle]
 # each obstacle [x, y, w, h, angle] is a rectangle, (x, y) is the coordinate of the bottom-left corner of the obstacle, (w, h) is the width and height of the obstacle, angle is the rotation in degrees anti-clockwise about (x, y)
 obstacles = []
-# randomly generate 10 obstacle rectangles
-# for i in range(10):
-#     x = random.uniform(0, m)
-#     y = random.uniform(0, n)
-#     w = random.uniform(0, m / 10)
-#     h = random.uniform(0, n / 10)
-#     angle = random.uniform(0, 180)
-#     obstacles.append([x, y, w, h, angle])
 
 # borders of the map
 obstacles.append([2 * L, 20, 20, m - 2 * L, -90])
@@ -87,11 +78,7 @@ obstacles.append([3500, 1200, 200, 1200, -90])
 s0 = [0, 0, 0]
 
 # target state: st = [xt, yt, θt]
-# randomly generate a target state
-x = random.uniform(0, m)
-y = random.uniform(0, n)
-z = random.uniform(0, 2 * math.pi)
-st = [x, y, z]
+st = [4000, 3000, math.pi / 2]
 
 
 # Trajectory Planning
@@ -354,27 +341,23 @@ def plotTrajectory(trajectory, ax):
         y = point[1] + R * math.sin(point[2]) + W / 2 * math.cos(point[2]) - L * math.sin(point[2])
         rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b', alpha = 0.6)
         ax.add_patch(rec)
-
-        center = plt.Circle((point[0], point[1]), 1, color = 'r')
-        ax.add_patch(center)
-
     return ax
 
 def plotObstacles(obstacles, ax):
     for obstacle in obstacles:
-        rec = plt.Rectangle((obstacle[0],obstacle[1]), obstacle[2], obstacle[3], angle = obstacle[4], color = 'k')
+        rec = plt.Rectangle((obstacle[0], obstacle[1]), obstacle[2], obstacle[3], angle = obstacle[4], color = 'k')
         ax.add_patch(rec)
     return ax
 
-def plotPoint(point,ax):
+def plotPoint(point, ax):
     # plot arrow
-    plt.arrow(point[0], point[1], 0.5*np.cos(point[2]),0.5*np.sin(point[2]), color='r', width=m/100)
+    plt.arrow(point[0], point[1], 0.5 * np.cos(point[2]),0.5 * np.sin(point[2]), color = 'r', width = m / 100, alpha = 0.6)
     # plot center point 
-    plt.plot(point[0], point[1],'bo')
+    plt.plot(point[0], point[1], 'bo')
     # plot robot 
-    x = point[0] + R * math.cos(point[2]) +W / 2*math.sin(point[2]) - L * math.cos(point[2])
-    y = point[1] + R * math.sin(point[2]) - W / 2*math.cos(point[2]) - L * math.sin(point[2])
-    rec = plt.Rectangle((x, y), L, W, angle = point[2]*180 / math.pi, color = 'b')
+    x = point[0] + R * math.cos(point[2]) - W / 2 * math.sin(point[2]) - L * math.cos(point[2])
+    y = point[1] + R * math.sin(point[2]) + W / 2 * math.cos(point[2]) - L * math.sin(point[2])
+    rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b', alpha = 0.6)
     ax.add_patch(rec)
     return ax
 
