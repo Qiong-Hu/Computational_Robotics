@@ -437,10 +437,9 @@ experiments = [[2500, 4000, math.pi / 2], \
                [4000, 3500, 0], \
                [4000, 4500, 0]]
 
-# for st in experiments:
-#     test(RRT, s0, st, obstacles)
-#     print()
-# test(RRT, s0, [200,200,0], obstacles)
+for st in experiments:
+    test(RRT, s0, st, obstacles)
+    print()
 
 
 # Problem 3(c)
@@ -483,38 +482,6 @@ def RRTstar(s0, s1, obstacles):
 # Problem 3(d)
 # Qualitatively describe some conclusions about the effectiveness of your planner for potential tasks your robot may encounter. For example, what happens to your planner in the presence of process noise, i.e. a stochastic system model? How might you modify your algorithm to better handle noise?
 
-# tra=test(RRTstar, s0, [400,400,0], obstacles)
-
-# for st in experiments:
-#     test(RRTstar, s0, st, obstacles)
-#     print()
-
-def combine(s1, tra1, tra2):
-    # plot trajectory figure
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    # plot the map
-    plt.xlim([0, m])
-    plt.ylim([0, n])
-    plt.xticks(np.arange(0, m + 1, m / 5))
-    plt.yticks(np.arange(0, n + 1, n / 5))
-    plt.grid()
-    # plot obstacles
-    plotObstacles(obstacles, ax)
-
-    # plot start and goal state
-    plotPoint(s0, ax)
-    plotPoint(s1, ax)
-    # plot trajectory
-    plotTrajectory(tra1, ax, 'b')
-    plotTrajectory(tra2, ax, 'r')
-
-    plt.axis("square")
-    # plt.show()
-    fig.savefig("./img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + ".jpg")
-
-from trajectory_RRT import tra1
-from trajectory_RRTstar import tra2
-
-for expe in range(10):
-    combine(experiments[expe],tra1[expe],tra2[expe])
+for st in experiments:
+    test(RRTstar, s0, st, obstacles)
+    print()
