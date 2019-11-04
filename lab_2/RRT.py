@@ -56,15 +56,32 @@ n = 5000   # unit: mm, width of the map
 # obstacles: a list to store obstacle states
 # obstacles= {obstacle}, obstacle = [x, y, w, h, angle]
 # each obstacle [x, y, w, h, angle] is a rectangle, (x, y) is the coordinate of the bottom-left corner of the obstacle, (w, h) is the width and height of the obstacle, angle is the rotation in degrees anti-clockwise about (x, y)
-# randomly generate 10 obstacle rectangles
 obstacles = []
-for i in range(10):
-    x = random.uniform(0, m)
-    y = random.uniform(0, n)
-    w = random.uniform(0, m / 10)
-    h = random.uniform(0, n / 10)
-    angle = random.uniform(0, 180)
-    obstacles.append([x, y, w, h, angle])
+# randomly generate 10 obstacle rectangles
+# for i in range(10):
+#     x = random.uniform(0, m)
+#     y = random.uniform(0, n)
+#     w = random.uniform(0, m / 10)
+#     h = random.uniform(0, n / 10)
+#     angle = random.uniform(0, 180)
+#     obstacles.append([x, y, w, h, angle])
+
+# borders of the map
+obstacles.append([2 * L, 20, 20, m - 2 * L, -90])
+obstacles.append([0, 2 * L, 20, n - 2 * L, 0])
+obstacles.append([0, n, 20, m, -90])
+obstacles.append([m - 20, 0, 20, n, 0])
+
+# restrictions in parking spot
+obstacles.append([800, 500, 400, 1500, 0])
+obstacles.append([800, 3000, 400, 1500, 0])
+obstacles.append([1900, 500, 200, 1200, 0])
+obstacles.append([2800, 500, 200, 1200, 0])
+obstacles.append([1900, 3300, 200, 1200, 0])
+obstacles.append([2800, 3300, 200, 1200, 0])
+obstacles.append([2000, 2650, 200, 2000, -90])
+obstacles.append([3500, 3900, 200, 1200, -90])
+obstacles.append([3500, 1200, 200, 1200, -90])
 
 # start state: s0 = [x0, y0, θ0]
 s0 = [0, 0, 0]
