@@ -67,12 +67,12 @@ obstacles.append([m - 20, 0, 20, n, 0])
 obstacles.append([800, 500, 400, 1500, 0])
 obstacles.append([800, 3000, 400, 1500, 0])
 obstacles.append([1900, 500, 200, 1200, 0])
-obstacles.append([2800, 500, 200, 1200, 0])
+obstacles.append([2900, 500, 200, 1200, 0])
 obstacles.append([1900, 3300, 200, 1200, 0])
-obstacles.append([2800, 3300, 200, 1200, 0])
-obstacles.append([2000, 2650, 200, 2000, -90])
-obstacles.append([3500, 3900, 200, 1200, -90])
-obstacles.append([3500, 1200, 200, 1200, -90])
+obstacles.append([2900, 3300, 200, 1200, 0])
+obstacles.append([2000, 2600, 200, 2000, -90])
+obstacles.append([3500, 4100, 200, 1200, -90])
+obstacles.append([3500, 1100, 200, 1200, -90])
 
 # start state: s0 = [x0, y0, θ0]
 s0 = [0, 0, 0]
@@ -316,14 +316,14 @@ def RRT(s0, s1, obstacles):
         start = find_closestNode(V, randompoint)
 
         # generate a trajectory from the closest start point to the random end point
-        trajectory = generate_trajectory(start.state, randompoint)
+        trajectory = generate_trajectory(start.state, randompoint)[0]
 
         # if not collision, add it into V
         if not isCollisionTrajectory(trajectory, obstacles):
             end = Node(trajectory[-1])
             end.parent = start
             V.append(end)
-        if len(V) > 100000:
+        if len(V) > 10000:
             break
     # print(len(V))
 
@@ -339,7 +339,7 @@ def plotTrajectory(trajectory, ax):
         # plot the robot
         x = point[0] + R * math.cos(point[2]) - W / 2 * math.sin(point[2]) - L * math.cos(point[2])
         y = point[1] + R * math.sin(point[2]) + W / 2 * math.cos(point[2]) - L * math.sin(point[2])
-        rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b', alpha = 0.6)
+        rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b')
         ax.add_patch(rec)
     return ax
 
@@ -351,13 +351,13 @@ def plotObstacles(obstacles, ax):
 
 def plotPoint(point, ax):
     # plot arrow
-    plt.arrow(point[0], point[1], 0.5 * np.cos(point[2]),0.5 * np.sin(point[2]), color = 'r', width = m / 100, alpha = 0.6)
+    plt.arrow(point[0], point[1], 0.5 * np.cos(point[2]),0.5 * np.sin(point[2]), color = 'r', width = m / 100)
     # plot center point 
     plt.plot(point[0], point[1], 'bo')
     # plot robot 
     x = point[0] + R * math.cos(point[2]) - W / 2 * math.sin(point[2]) - L * math.cos(point[2])
     y = point[1] + R * math.sin(point[2]) + W / 2 * math.cos(point[2]) - L * math.sin(point[2])
-    rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b', alpha = 0.6)
+    rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b')
     ax.add_patch(rec)
     return ax
 
@@ -372,13 +372,15 @@ def RRT_test(s0, s1, obstacles):
     trajectory, V = RRT(s0, s1, obstacles)
     end = time.time()
 
+    print("Target state:       " + str(s1))
+
     # Calculation time that RRT needed to find a trajectory
-    print("Calculation time: " + str(end - start) + "s")
+    print("Calculation time:   " + str(end - start) + "s")
 
     # Calculate number of nodes needed to find a trajectory
     space = len(V)
 
-    print("Number of nodes: " + str(space))
+    print("Number of nodes:    " + str(space))
     # Calculate time that the robot needed to go using the generated RRT trajectory
     t = 0
     for i in range(len(trajectory) - 1):
@@ -392,10 +394,10 @@ def RRT_test(s0, s1, obstacles):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     # plot the map
-    plt.xlim([0,m])
-    plt.ylim([0,n])
-    plt.xticks(np.arange(0,m+1,m/5))
-    plt.yticks(np.arange(0,n+1,n/5))
+    plt.xlim([0, m])
+    plt.ylim([0, n])
+    plt.xticks(np.arange(0, m + 1, m / 5))
+    plt.yticks(np.arange(0, n + 1, n / 5))
     plt.grid()
     # plot obstacles
     plotObstacles(obstacles, ax)
@@ -406,16 +408,30 @@ def RRT_test(s0, s1, obstacles):
     # plot trajectory
     plotTrajectory(trajectory, ax)
 
-    plt.axis("equal")
+    plt.axis("square")
     plt.show()
+    fig.savefig('./img-'+time.strftime("%H%M%S", time.localtime())+'.jpg')
 
-RRT_test(s0, st, obstacles)
+
+# Problem 3(b)
+# How much relative computational cost is associated with the various operations of the RRT planner?
+
+experiments = [[2500, 4000, math.pi / 2], \
+               [2500, 4000, -math.pi / 2], \
+               [2500, 4000, 0], \
+               [2500, 1000, math.pi / 2], \
+               [2500, 1000, -math.pi / 2], \
+               [2500, 1000, 0], \
+               [4000, 500, 0], \
+               [4000, 1500, 0], \
+               [4000, 3500, 0], \
+               [4000, 4500, 0]]
+
+for st in experiments:
+    RRT_test(s0, st, obstacles)
 
 
-# Prob 3(b)
-# Run some examples that demonstrate the performance. 
-
-# Prob 3(c)
+# Problem 3(c)
 # Improve on your planner using the RRT* algorithm, and compare to your original RRT planner using the above metrics.
 #Caculate time robot need to go for a trajectory
 def trajectory_time(trajectory):
@@ -438,7 +454,7 @@ def RRTstar(s0,s1,obstacles):
         trajectory = generate_trajectory(start.state, randompoint)
         mintime = trajectory_time(trajectory)+start.t
         # if not collision, add it into V
-        if not iscollisiontrajectory(trajectory,obstacles):
+        if not isCollisionTrajectory(trajectory,obstacles):
             end = Node(trajectory[-1])
             for node in V:
                 if ((end.state[0] - node.state[0])/vx_max) ** 2 + ((end.state[1] - node.state[1])/vy_max) ** 2 + ((end.state[2] - node.state[2]) / wmax_robot) ** 2 <=1:
@@ -460,5 +476,5 @@ def RRTstar(s0,s1,obstacles):
 
 
 
-# Prob 3(d)
+# Problem 3(d)
 # Qualitatively describe some conclusions about the effectiveness of your planner for potential tasks your robot may encounter. For example, what happens to your planner in the presence of process noise, i.e. a stochastic system model? How might you modify your algorithm to better handle noise?
