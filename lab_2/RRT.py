@@ -437,9 +437,9 @@ experiments = [[2500, 4000, math.pi / 2], \
                [4000, 3500, 0], \
                [4000, 4500, 0]]
 
-# for st in experiments:
-#     test(RRT, s0, st, obstacles)
-#     print()
+for st in experiments:
+    test(RRT, s0, st, obstacles)
+    print()
 # test(RRT, s0, [200,200,0], obstacles)
 
 
@@ -485,6 +485,6 @@ def RRTstar(s0, s1, obstacles):
 
 # tra=test(RRTstar, s0, [400,400,0], obstacles)
 
-for st in experiments:
-    test(RRTstar, s0, st, obstacles)
-    print()
+# for st in experiments:
+#     test(RRTstar, s0, st, obstacles)
+#     print()
