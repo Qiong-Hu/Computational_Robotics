@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Wedge
 import math
 import random
 import time
@@ -80,9 +81,16 @@ st = [x, y, z]
 # Problem 2(a)
 # Given a set of points V in C-space and a single target point xt, define and justify a metric that can be used to determine which of the points in V is closest to xt.
 
+# RRT node
+class Node():
+    def __init__(self, state):
+        self.state = state
+        self.path = []
+        self.parent = None
+
 # determine which of the points in V is the closest to xt
 def find_closestNode(V, xt):
-    # V: a set of RRT points. V = {v}, v = (x, y, theta) in C-space
+    # V: a set of RRT points. V = {v}, v is a Node class, v.state = (x, y, theta) in C-space
     # xt: a single target point. xt = (x_t, y_t, theta_t)
     # Return: the closest node to the target point xt inside the set V
 
@@ -112,7 +120,7 @@ def find_closestNode(V, xt):
 # 3, rotate until the orientation is the same as the target state
 # 4, if one-second time is not enough to accomplish all three steps, stop wherever when running out of time
 def generate_trajectory(xi, xt):
-    # Given the initial and target robot state: xi, xt in C-space.
+    # Given: initial state xi and target state xt in C-space
     # Return: an achievable trajectory
 
     # a list to store each point in the trajectory within one second
@@ -142,6 +150,7 @@ def generate_trajectory(xi, xt):
         end[2] = xi[2] - diff_angle
     else:
         end[2] = xi[2] + (math.pi - diff_angle)
+    end[2] = end[2] % (2 * math.pi)
     trajectory.append(end)
     # print(trajectory)
 
@@ -171,9 +180,13 @@ def generate_trajectory(xi, xt):
 
         # for the remaining time, do the step 3 (rotate to the orientation of the target state)
         end = [xt[0], xt[1], end[2]]
-        remain_time -= required_time 
-        diff_angle = (end[2] - xt[2]) % (2 * math.pi)
-        required_time = (diff_angle % math.pi) / wmax_robot
+        remain_time -= required_time
+        diff_angle = end[2] - xt[2]
+        if math.pi <= diff_angle <= 2 * math.pi:
+            diff_angle = diff_angle - 2 * math.pi
+        elif -2 * math.pi <= diff_angle <= -math.pi:
+            diff_angle = diff_angle + 2 * math.pi
+        required_time = abs(diff_angle) / wmax_robot
 
         # if have enough time for step 3, then arrive at the target state
         if remain_time >= required_time:
@@ -197,9 +210,9 @@ def generate_trajectory(xi, xt):
 # Given a smooth robot trajectory in Configuration space and obstacles defined in operational space, determine whether this trajectory is collision free
 
 # cross product of vector p1-to-p2 and p1-to-p3
-# p1, p2, p3 are points in the configuration space
-# can also use np.cross(p2 - p1, p3 - p1)[2] to return the same value
 def cross(p1, p2, p3):
+    # p1, p2, p3 are points in the configuration space
+    # can also use np.cross(p2 - p1, p3 - p1)[2] to return the same value
     x1 = p2[0] - p1[0]
     y1 = p2[1] - p1[1]
     x2 = p3[0] - p1[0]
@@ -215,7 +228,7 @@ def isIntersec(p1, p2, p3, p4):
         and max(p1[1], p2[1]) >= min(p3[1], p4[1]) 
         and max(p3[1], p4[1]) >= min(p1[1], p2[1])): 
 
-        # If two line segments are intersecting, p3 and p4 are in different sides of the line (p1, p2), p1 and p2 are in different sides of the line (p3, p4)
+        # if two line segments are intersecting, p3 and p4 are in different sides of the line (p1, p2), p1 and p2 are in different sides of the line (p3, p4)
         if (cross(p1, p2, p3) * cross(p1, p2, p4) <= 0
            and cross(p3, p4, p1) * cross(p3, p4, p2) <= 0):
             result = True
@@ -229,6 +242,7 @@ def isIntersec(p1, p2, p3, p4):
 def isCollisionRectangle(Rectangle1, Rectangle2):
     # Rectangle: [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
     # four corners must be clockwise or anticlockwise
+
     collision = False
     for i in range(4):
         for j in range(4):
@@ -275,37 +289,40 @@ def isCollisionTrajectory(trajectory, obstacles):
                 p8 = [p7[0] + h * math.sin(zeta), p7[1] - h * math.cos(zeta)]
 
                 # determine whether the trajectory is collision free
-                collision = collision or iscollisionRectangle([p1, p2, p3, p4], [p5, p6, p7, p8])
+                collision = collision or isCollisionRectangle([p1, p2, p3, p4], [p5, p6, p7, p8])
     return collision
 
 
 # Problem 2(d)
 # Combine the above to implement an RRT planner generating a trajectory from a specified initial state to the desired goal region. Visualize the evolution of the RRT.
 
-# RRT node
-class Node():
-    def __init__(self, state):
-        self.state = state
-        self.path = []
-        self.parent = None
-
 def RRT(s0, s1, obstacles):
+    # Given: initial state s0 and target state s1 in C-space
+    # Given: coordinates of obstacles in operational space
+    # Return: trajectory and a set of RRT points V
+
     V = [Node(s0)]
     end = Node(s0)
-    while ((end.state[0] - s1[0]) / vx_max) ** 2 + ((end.state[1] - s1[1]) / vy_max) ** 2 + ((end.state[2] - s1[2]) / wmax_robot) ** 2 >=1:     
-        # get a random point            
-        randompoint=[random.uniform(0,m),random.uniform(0,n),random.uniform(0,2*math.pi)]
+
+    # while can't move from present end to the target state in one second
+    while ((end.state[0] - s1[0]) / vx_max) ** 2 + ((end.state[1] - s1[1]) / vy_max) ** 2 + ((end.state[2] - s1[2]) / wmax_robot) ** 2 >= 1:
+
+        # generate a random point in the configuration space
+        randompoint = [random.uniform(0, m), random.uniform(0, n), random.uniform(0, 2 * math.pi)]
         start = find_closestNode(V, randompoint)
-        #  generate a trajectory from start to random point
+
+        # generate a trajectory from the closest start point to the random end point
         trajectory = generate_trajectory(start.state, randompoint)
+
         # if not collision, add it into V
-        if not iscollisiontrajectory(trajectory,obstacles):
+        if not isCollisionTrajectory(trajectory, obstacles):
             end = Node(trajectory[-1])
             end.parent = start
             V.append(end)
         if len(V) > 10000:
             break
-    #print(len(V))
+    # print(len(V))
+
     trajectory = [end.state]
     while (end.parent != None):
         trajectory.append(end.parent.state)
@@ -315,11 +332,15 @@ def RRT(s0, s1, obstacles):
 # For visualization: plot trajectory, obstacles, and points that represent the robot
 def plotTrajectory(trajectory, ax):
     for point in trajectory:
-        # plot robot
-        x = point[0] + R*math.cos(point[2]) + W/2 * math.sin(point[2]) - L * math.cos(point[2])
-        y = point[1] + R*math.sin(point[2]) - W/2 * math.cos(point[2]) - L * math.sin(point[2])
-        rec = plt.Rectangle((x, y), L, W, angle = point[2]*180/math.pi, color = 'b')
+        # plot the robot
+        x = point[0] + R * math.cos(point[2]) - W / 2 * math.sin(point[2]) - L * math.cos(point[2])
+        y = point[1] + R * math.sin(point[2]) + W / 2 * math.cos(point[2]) - L * math.sin(point[2])
+        rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b', alpha = 0.6)
         ax.add_patch(rec)
+
+        center = plt.Circle((point[0], point[1]), 1, color = 'r')
+        ax.add_patch(center)
+
     return ax
 
 def plotObstacles(obstacles, ax):
