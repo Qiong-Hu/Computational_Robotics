@@ -48,13 +48,13 @@ D_O = 2     # The dimensionality is 2
 # Assume a fully observable system, i.e. the state itself is directly accessible with no sensor model.
 
 # Define map
-# an m * n rectangular environment
+# a m * n rectangular environment
 m = 5000   # unit: mm, length of the map
 n = 5000   # unit: mm, width of the map
 
 # obstacles: a list to store obstacle states
 # obstacles= {obstacle}, obstacle = [x, y, w, h, angle]
-# each obstacle [x, y, w, h, angle] is a rectangle, (x, y) is the coordinate of the lower-left corner of the obstacle, (w, h) is the width and height of the obstacle, angle is the orientation of the rectangle
+# each obstacle [x, y, w, h, angle] is a rectangle, (x, y) is the coordinate of the bottom-left corner of the obstacle, (w, h) is the width and height of the obstacle, angle is the rotation in degrees anti-clockwise about (x, y)
 # randomly generate 10 obstacle rectangles
 obstacles = []
 for i in range(10):
@@ -79,13 +79,6 @@ st = [x, y, z]
 # Trajectory Planning
 # Problem 2(a)
 # Given a set of points V in C-space and a single target point xt, define and justify a metric that can be used to determine which of the points in V is closest to xt.
-
-# RRT node
-class Node():
-    def __init__(self, state):
-        self.state = state
-        self.path = []
-        self.parent = None
 
 # determine which of the points in V is the closest to xt
 def find_closestNode(V, xt):
@@ -203,6 +196,9 @@ def generate_trajectory(xi, xt):
 # Problem 2(c)
 # Given a smooth robot trajectory in Configuration space and obstacles defined in operational space, determine whether this trajectory is collision free
 
+# cross product of vector p1-to-p2 and p1-to-p3
+# p1, p2, p3 are points in the configuration space
+# can also use np.cross(p2 - p1, p3 - p1)[2] to return the same value
 def cross(p1, p2, p3):
     x1 = p2[0] - p1[0]
     y1 = p2[1] - p1[1]
@@ -211,7 +207,7 @@ def cross(p1, p2, p3):
     return x1 * y2 - x2 * y1
 
 # determine whether two line segments are intersecting
-def IsIntersec(p1, p2, p3, p4):
+def isIntersec(p1, p2, p3, p4):
     # (p1, p2) defines line 1, (p3, p4) defines line 2
     # If there is an intersection p0, then p0 is on both lines, so min{p1, p2} <= p0 <= max{p1, p2} and min{p3, p4} <= p0 <= max{p3, p4} are satisfied for both x component and y component
     if (max(p1[0], p2[0]) >= min(p3[0], p4[0]) 
@@ -219,7 +215,8 @@ def IsIntersec(p1, p2, p3, p4):
         and max(p1[1], p2[1]) >= min(p3[1], p4[1]) 
         and max(p3[1], p4[1]) >= min(p1[1], p2[1])): 
 
-        if(cross(p1, p2, p3) * cross(p1, p2, p4) <= 0
+        # If two line segments are intersecting, p3 and p4 are in different sides of the line (p1, p2), p1 and p2 are in different sides of the line (p3, p4)
+        if (cross(p1, p2, p3) * cross(p1, p2, p4) <= 0
            and cross(p3, p4, p1) * cross(p3, p4, p2) <= 0):
             result = True
         else:
@@ -231,14 +228,18 @@ def IsIntersec(p1, p2, p3, p4):
 # determine whether two rectangles have intersections
 def isCollisionRectangle(Rectangle1, Rectangle2):
     # Rectangle: [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
+    # four corners must be clockwise or anticlockwise
     collision = False
     for i in range(4):
         for j in range(4):
-            collision = collision or IsIntersec(Rectangle1[i],
-                Rectangle1[(i + 1) % 4], Rectangle2[j], Rectangle2[(j + 1) % 4])
+            collision = collision or isIntersec(Rectangle1[i], Rectangle1[(i + 1) % 4], Rectangle2[j], Rectangle2[(j + 1) % 4])
+            if collision:
+                break
+        if collision:
+            break
     return collision
 
-# determine whether trajectory is collision free.
+# determine whether the trajectory is collision free
 def isCollisionTrajectory(trajectory, obstacles):
     collision = False
     n = len(trajectory)
@@ -249,32 +250,44 @@ def isCollisionTrajectory(trajectory, obstacles):
         x1 = trajectory[i + 1][0]
         y1 = trajectory[i + 1][1]
         z1 = trajectory[i + 1][2]
+
+        # divide the trajectory into certain steps (10 steps for now), treat all motion curves as small line segments
         steps = 10
         for j in range(steps):
             xt = j * (x1 - x) / (steps - 1) + x
             yt = j * (y1 - y) / (steps - 1) + y
             zt = j * (z1 - z) / (steps - 1) + z
+
             # four vertices of the robot
             p1 = [xt + R * math.cos(zt) + W / 2 * math.sin(zt), yt + R * math.sin(zt) - W / 2 * math.cos(zt)]
             p2 = [p1[0] - L * math.cos(zt), p1[1] - L * math.sin(zt)]
-            p3 = [p2[0] - W * math.sin(zt), p2[1]+W * math.cos(zt)]
-            p4 = [p3[0] + L * math.cos(zt), p3[1]+L * math.sin(zt)]
+            p3 = [p2[0] - W * math.sin(zt), p2[1] + W * math.cos(zt)]
+            p4 = [p3[0] + L * math.cos(zt), p3[1] + L * math.sin(zt)]
+
             for obstacle in obstacles:
                 w = obstacle[2]
                 h = obstacle[3]
                 zeta = obstacle[4] / 180 * math.pi
                 # four vertices of the obstacle
-                p5 = [obstacle[0],obstacle[1]]
-                p6 = [p5[0] - h * math.sin(zeta),p5[1] + h * math.cos(zeta)]
-                p7 = [p6[0] + w * math.cos(zeta),p6[1] + w * math.sin(zeta)]
-                p8 = [p7[0] + h * math.sin(zeta),p7[1] - h * math.cos(zeta)]
-                #whether trajectory is collision free.
+                p5 = [obstacle[0], obstacle[1]]
+                p6 = [p5[0] - h * math.sin(zeta), p5[1] + h * math.cos(zeta)]
+                p7 = [p6[0] + w * math.cos(zeta), p6[1] + w * math.sin(zeta)]
+                p8 = [p7[0] + h * math.sin(zeta), p7[1] - h * math.cos(zeta)]
+
+                # determine whether the trajectory is collision free
                 collision = collision or iscollisionRectangle([p1, p2, p3, p4], [p5, p6, p7, p8])
     return collision
 
 
 # Problem 2(d)
 # Combine the above to implement an RRT planner generating a trajectory from a specified initial state to the desired goal region. Visualize the evolution of the RRT.
+
+# RRT node
+class Node():
+    def __init__(self, state):
+        self.state = state
+        self.path = []
+        self.parent = None
 
 def RRT(s0, s1, obstacles):
     V = [Node(s0)]
