@@ -91,6 +91,7 @@ class Node():
         self.state = state
         self.path = []
         self.parent = None
+        self.t = 0
 
 # determine which of the points in V is the closest to xt
 def find_closestNode(V, xt):
@@ -366,28 +367,32 @@ def plotPoint(point, ax):
 # Evaluation and Extensions
 # Run some examples that demonstrate the performance (in terms of computational efficiency, trajectory efficiency, and obstacle avoidance) of your planner as your robot tries to achieve various goals (such as head-in parking and parallel parking between other such parked vehicles). Clearly describe the experiments that were run, the data that was gathered, and the process by which you use that data to characterize the performance of your planner. Include figures; you may also refer to animations uploaded to your git repo.
 
-# test performance of RRT
-def RRT_test(s0, s1, obstacles):
-    start = time.time()
-    trajectory, V = RRT(s0, s1, obstacles)
-    end = time.time()
-
-    print("Target state:       " + str(s1))
-
-    # Calculation time that RRT needed to find a trajectory
-    print("Calculation time:   " + str(end - start) + "s")
-
-    # Calculate number of nodes needed to find a trajectory
-    space = len(V)
-
-    print("Number of nodes:    " + str(space))
-    # Calculate time that the robot needed to go using the generated RRT trajectory
+# Caculate time that the robot needed to go using the generated trajectory
+def trajectory_time(trajectory):
     t = 0
     for i in range(len(trajectory) - 1):
         dx = trajectory[i + 1][0] - trajectory[i][0]
         dy = trajectory[i + 1][1] - trajectory[i][1]
         dz = trajectory[i + 1][2] - trajectory[i][2]
         t += math.sqrt(dx ** 2 + dy ** 2) / vx_max + dz / wmax_robot
+    return t
+
+# test performance of RRT
+def test(s0, s1, RRT, obstacles):
+    print("Target state:       " + str(s1))
+
+    start = time.time()
+    trajectory, V = RRT(s0, s1, obstacles)
+    end = time.time()
+    # Calculation time that RRT needed to find a trajectory
+    print("Calculation time:   " + str(end - start) + "s")
+
+    # Calculate number of nodes needed to find a trajectory
+    space = len(V)
+    print("Number of nodes:    " + str(space))
+
+    # Calculate time that the robot needed to go using the generated RRT trajectory
+    t = trajectory_time(trajectory)
     print("Robot running time: " + str(t) + "s")
 
     # plot trajectory figure
@@ -409,8 +414,8 @@ def RRT_test(s0, s1, obstacles):
     plotTrajectory(trajectory, ax)
 
     plt.axis("square")
-    plt.show()
-    fig.savefig('./img-'+time.strftime("%H%M%S", time.localtime())+'.jpg')
+    # plt.show()
+    fig.savefig("./img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + "-" + time.strftime("%H%M%S", time.localtime()) + ".jpg")
 
 
 # Problem 3(b)
@@ -428,53 +433,49 @@ experiments = [[2500, 4000, math.pi / 2], \
                [4000, 4500, 0]]
 
 for st in experiments:
-    RRT_test(s0, st, obstacles)
+    test(s0, st, RRT, obstacles)
+    # print()
+# test(s0, [200,200,0], RRT, obstacles)
 
 
 # Problem 3(c)
 # Improve on your planner using the RRT* algorithm, and compare to your original RRT planner using the above metrics.
-#Caculate time robot need to go for a trajectory
-def trajectory_time(trajectory):
-    t = 0
-    for i in range(len(trajectory) - 1):
-        dx = trajectory[i+1][0]-trajectory[i][0]
-        dy = trajectory[i+1][1]-trajectory[i][1]
-        dz = trajectory[i+1][2]-trajectory[i][2]
-        t += math.sqrt(dx**2+dy**2)/vx_max + dz/wmax_robot
-    return t
 
-def RRTstar(s0,s1,obstacles):
+def RRTstar(s0, s1, obstacles):
     V = [Node(s0)]
     end = Node(s0)
-    while ((end.state[0] - s1[0])/vx_max) ** 2 + ((end.state[1] - s1[1])/vy_max) ** 2 + ((end.state[2] - s1[2]) / wmax_robot) ** 2 >=1:     
+    while ((end.state[0] - s1[0]) / vx_max) ** 2 + ((end.state[1] - s1[1]) / vy_max) ** 2 + ((end.state[2] - s1[2]) / wmax_robot) ** 2 >= 1:     
         # get a random point            
-        randompoint=[random.uniform(0,m),random.uniform(0,n),random.uniform(0,2*math.pi)]
+        randompoint = [random.uniform(0, m), random.uniform(0, n), random.uniform(0, 2 * math.pi)]
+        # find the closest node to the random point
         start = find_closestNode(V, randompoint)
-        #  generate a trajectory from start to random point
-        trajectory = generate_trajectory(start.state, randompoint)
-        mintime = trajectory_time(trajectory)+start.t
+        # generate a trajectory from the closest starting point to the random point
+        trajectory = generate_trajectory(start.state, randompoint)[0]
+        # start.t?
+        mintime = trajectory_time(trajectory) + start.t
         # if not collision, add it into V
-        if not isCollisionTrajectory(trajectory,obstacles):
+        if not isCollisionTrajectory(trajectory, obstacles):
             end = Node(trajectory[-1])
             for node in V:
-                if ((end.state[0] - node.state[0])/vx_max) ** 2 + ((end.state[1] - node.state[1])/vy_max) ** 2 + ((end.state[2] - node.state[2]) / wmax_robot) ** 2 <=1:
+                if ((end.state[0] - node.state[0]) / vx_max) ** 2 + ((end.state[1] - node.state[1]) / vy_max) ** 2 + ((end.state[2] - node.state[2]) / wmax_robot) ** 2 <= 1:
                     trajectory = generate_trajectory(node.state, end.state)
-                    if trajectory_time(trajectory)+node.t<mintime:
+                    if trajectory_time(trajectory) + node.t < mintime:
                         start = node
-                        mintime = trajectory_time(trajectory)+node.t
+                        mintime = trajectory_time(trajectory) + node.t
             end.parent = start
             end.t = mintime
             V.append(end)
-        if len(V)>20000:
+        if len(V) > 20000:
             break
 
     trajectory = [end.state]
     while (end.parent != None):
         trajectory.append(end.parent.state)
         end = end.parent
-    return trajectory,V
-
+    return trajectory, V
 
 
 # Problem 3(d)
 # Qualitatively describe some conclusions about the effectiveness of your planner for potential tasks your robot may encounter. For example, what happens to your planner in the presence of process noise, i.e. a stochastic system model? How might you modify your algorithm to better handle noise?
+
+# tra=RRTstar(s0,[400,400,0],obstacles)
