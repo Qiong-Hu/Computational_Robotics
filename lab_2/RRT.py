@@ -323,7 +323,7 @@ def RRT(s0, s1, obstacles):
             end = Node(trajectory[-1])
             end.parent = start
             V.append(end)
-        if len(V) > 10000:
+        if len(V) > 100000:
             break
     # print(len(V))
 
@@ -363,60 +363,54 @@ def plotPoint(point, ax):
 
 
 # Problem 3(a)
+# Evaluation and Extensions
 # Run some examples that demonstrate the performance (in terms of computational efficiency, trajectory efficiency, and obstacle avoidance) of your planner as your robot tries to achieve various goals (such as head-in parking and parallel parking between other such parked vehicles). Clearly describe the experiments that were run, the data that was gathered, and the process by which you use that data to characterize the performance of your planner. Include figures; you may also refer to animations uploaded to your git repo.
 
-#test performance of RRT
+# test performance of RRT
 def RRT_test(s0, s1, obstacles):
     start = time.time()
-    trajectory,V = RRT(s0,s1,obstacles)
+    trajectory, V = RRT(s0, s1, obstacles)
     end = time.time()
-    # Caculate time RRT need to find a trajectory
-    print(end - start)
-    # Caculate number of nodes need to find a trajectory
+
+    # Calculation time that RRT needed to find a trajectory
+    print("Calculation time: " + str(end - start) + "s")
+
+    # Calculate number of nodes needed to find a trajectory
     space = len(V)
-    print(space)
-    #Caculate time robot need to go for a trajectory
+
+    print("Number of nodes: " + str(space))
+    # Calculate time that the robot needed to go using the generated RRT trajectory
     t = 0
     for i in range(len(trajectory) - 1):
         dx = trajectory[i + 1][0] - trajectory[i][0]
         dy = trajectory[i + 1][1] - trajectory[i][1]
         dz = trajectory[i + 1][2] - trajectory[i][2]
         t += math.sqrt(dx ** 2 + dy ** 2) / vx_max + dz / wmax_robot
-    print (t)
-    #plot figure
+    print("Robot running time: " + str(t) + "s")
+
+    # plot trajectory figure
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    # plot start and goal
-    plotpoint(s0, ax)
-    plotpoint(s1, ax)
-    # plot trajectory
-    plottrajectory(trajectory, ax)
-    # plot obstacles
-    plotobstacles(obstacles, ax)
-    # plot grid
-    plt.xlim((-m / 10, m))
-    plt.ylim((-n / 10, n))
+    # plot the map
+    plt.xlim([0,m])
+    plt.ylim([0,n])
+    plt.xticks(np.arange(0,m+1,m/5))
+    plt.yticks(np.arange(0,n+1,n/5))
     plt.grid()
+    # plot obstacles
+    plotObstacles(obstacles, ax)
+
+    # plot start and goal statee
+    plotPoint(s0, ax)
+    plotPoint(s1, ax)
+    # plot trajectory
+    plotTrajectory(trajectory, ax)
+
+    plt.axis("equal")
     plt.show()
 
-'''
-# For debug and test
-x=random.uniform(0,m)
-y=random.uniform(0,n)
-z=random.uniform(0,2*math.pi)
-s0=[0,0,0]
-s1=[x,y,z]
-obstacles=[]
-for i in range(10):
-    x=random.uniform(0,m)
-    y=random.uniform(0,n)
-    w=random.uniform(0,m/10)
-    h=random.uniform(0,n/10)
-    angle = random.uniform(0,180)
-    obstacles.append([x, y, w, h, angle])
+RRT_test(s0, st, obstacles)
 
-RRT_test(s0, s1, obstacles)
-'''
 
 # Prob 3(b)
 # Run some examples that demonstrate the performance. 
