@@ -122,6 +122,7 @@ def generate_trajectory(xi, xt):
 
     # a list to store each point in the trajectory within one second
     trajectory = []
+    trajectory.append(xi)
 
     # remaining time within one second, updated after each step
     remain_time = 1
@@ -147,34 +148,40 @@ def generate_trajectory(xi, xt):
     # print(trajectory)
 
     # calculate remaining time after step 1
-    req_rot_time = diff_angle % (math.pi / 2) / wmax_robot
-    remain_time = 1 - req_rot_time
-    req_dis_time = diff_dist / C
+    required_time = diff_angle % (math.pi / 2) / wmax_robot
+    remain_time = 1 - required_time
+
+    # calculate required time for step 2
+    required_time = diff_dist / C
     end = [end[0], end[1], end[2]]      # update list pointer
 
     # if not enough time for step 2 (to reach the target after rotation)
-    if remain_time < req_dis_time:
+    if remain_time < required_time:
         dist = remain_time * C
         end = [xi[0] + dist * math.cos(angle), xi[1] + dist * math.sin(angle), end[2]]
         trajectory.append(end)
         # print(trajectory)
 
-    # if robot has enough time to reach the target after rotation
+    # if the robot has enough time to reach the target after rotation
     else:
         end = [xt[0], xt[1], end[2]]
         trajectory.append(end)
         # print(trajectory)
 
-        # for the remaining time, rotate to the orientation of the target state
+        # for the remaining time, do the step 3 (rotate to the orientation of the target state)
         end = [xt[0], xt[1], end[2]]
-        remain_time -= req_dis_time 
+        remain_time -= required_time 
         diff_angle = (end[2] - xt[2]) % (2 * math.pi)
-        req_dis_time = (diff_angle % math.pi) / wmax_robot
-        if remain_time >= req_dis_time:
+        required_time = (diff_angle % math.pi) / wmax_robot
+
+        # if have enough time for step 3, then arrive at the target state
+        if remain_time >= required_time:
             trajectory.append(xt)
             # print(trajectory)
+
+        # if not enough time for step 3
         else:
-            if 0<= diff_angle <= math.pi:
+            if 0 <= diff_angle <= math.pi:
                end[2] = end[2] - wmax_robot * remain_time
             else:
                 end[2] = end[2] + wmax_robot * remain_time
@@ -308,7 +315,7 @@ def plotPoint(point,ax):
     ax.add_patch(rec)
     return ax
 
-
+'''
 # For debug and test
 trajectory = RRT(s0,s1,obstacles)
 
@@ -326,6 +333,6 @@ plt.xlim((-m/10, m))
 plt.ylim((-n/10, n))
 plt.grid()
 plt.show()
-
+'''
 
 
