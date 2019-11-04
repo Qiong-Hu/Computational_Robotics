@@ -23,7 +23,7 @@ show_animation = True
 # Define rebot model
 # input (action) space
 # Input = {input}, input = (w1, w2). w1 and w2 represent angular velocity of wheel 1 and wheel 2. w1, w2 ∈ [-wmax, wmax] = [-1, 1] RPS
-D_I = 2     # The dimensionality is 2 
+D_I = 2     # The dimensionality is 2
 
 # w is the angular velocity of the robot. positive: clockwise, negative: anti-clockwise
 # w = C * (w1 - w2) / W rad/s
@@ -48,7 +48,7 @@ D_O = 2     # The dimensionality is 2
 # Assume a fully observable system, i.e. the state itself is directly accessible with no sensor model.
 
 # Define map
-# a m * n rectangular environment
+# an m * n rectangular environment
 m = 5000   # unit: mm, length of the map
 n = 5000   # unit: mm, width of the map
 
@@ -201,30 +201,33 @@ def generate_trajectory(xi, xt):
 
 
 # Problem 2(c)
-# determine whether collision free
+# Given a smooth robot trajectory in Configuration space and obstacles defined in operational space, determine whether this trajectory is collision free
 
 def cross(p1, p2, p3):
-    x1=p2[0] - p1[0]
-    y1=p2[1] - p1[1]
-    x2=p3[0] - p1[0]
-    y2=p3[1] - p1[1]
-    return x1 * y2 - x2 * y1     
+    x1 = p2[0] - p1[0]
+    y1 = p2[1] - p1[1]
+    x2 = p3[0] - p1[0]
+    y2 = p3[1] - p1[1]
+    return x1 * y2 - x2 * y1
 
-# determine whether two lines are intersection
-def IsIntersec(p1,p2,p3,p4): 
-    if(max(p1[0], p2[0]) >= min(p3[0], p4[0]) 
+# determine whether two line segments are intersectant
+def IsIntersec(p1, p2, p3, p4):
+    # (p1, p2) defines line 1, (p3, p4) defines line 2
+    # If there is an intersection p0, then p0 is on both lines, so min{p1, p2} <= p0 <= max{p1, p2} and min{p3, p4} <= p0 <= max{p3, p4} are satisfied for both x component and y component
+    if (max(p1[0], p2[0]) >= min(p3[0], p4[0]) 
         and max(p3[0], p4[0]) >= min(p1[0], p2[0]) 
         and max(p1[1], p2[1]) >= min(p3[1], p4[1]) 
         and max(p3[1], p4[1]) >= min(p1[1], p2[1])): 
 
-        if(cross(p1,p2,p3) * cross(p1,p2,p4)<=0
-           and cross(p3,p4,p1) * cross(p3,p4,p2)<=0):
-            D = True
+        # 
+        if(cross(p1, p2, p3) * cross(p1, p2, p4) <= 0
+           and cross(p3, p4, p1) * cross(p3, p4, p2) <= 0):
+            result = True
         else:
-            D = False
+            result = False
     else:
-        D = False
-    return D
+        result = False
+    return result
 
 # determine whether two rectangles have intersections
 def isCollisionRectangle(Rectangle1, Rectangle2):
@@ -237,35 +240,35 @@ def isCollisionRectangle(Rectangle1, Rectangle2):
     return collision
 
 # determine whether trajectory is collision free.
-def isCollisionTrajectory(trajectory,obstacles):
+def isCollisionTrajectory(trajectory, obstacles):
     collision = False
     n = len(trajectory)
     for i in range(n - 1):
         x = trajectory[i][0]
         y = trajectory[i][1]
         z = trajectory[i][2]
-        x1 = trajectory[i+1][0]
-        y1 = trajectory[i+1][1]
-        z1 = trajectory[i+1][2]
+        x1 = trajectory[i + 1][0]
+        y1 = trajectory[i + 1][1]
+        z1 = trajectory[i + 1][2]
         steps = 10
         for j in range(steps):
-            xt = j*(x1-x)/(steps-1)+x
-            yt = j*(y1-y)/(steps-1)+y
-            zt = j*(z1-z)/(steps-1)+z
+            xt = j*(x1-x)/(steps-1) + x
+            yt = j*(y1-y)/(steps-1) + y
+            zt = j*(z1-z)/(steps-1) + z
             # four vertices of the robot
             p1 = [xt+R*math.cos(zt)+W/2*math.sin(zt), yt+R*math.sin(zt)-W/2*math.cos(zt)]
-            p2 = [p1[0]-L*math.cos(zt), p1[1]-L*math.sin(zt)]
+            p2 = [p1[0]-L*math.cos(zt), p1[1] - L*math.sin(zt)]
             p3 = [p2[0]-W*math.sin(zt), p2[1]+W*math.cos(zt)]
             p4 = [p3[0]+L*math.cos(zt), p3[1]+L*math.sin(zt)]
             for obstacle in obstacles:
                 w = obstacle[2]
                 h = obstacle[3]
-                zeta = obstacle[4]/180*math.pi
+                zeta = obstacle[4] / 180 * math.pi
                 # four vertices of the obstacle
                 p5 = [obstacle[0],obstacle[1]]
-                p6 = [p5[0]-h*math.sin(zeta),p5[1]+h*math.cos(zeta)]
-                p7 = [p6[0]+w*math.cos(zeta),p6[1]+w*math.sin(zeta)]
-                p8 = [p7[0]+h*math.sin(zeta),p7[1]-h*math.cos(zeta)]
+                p6 = [p5[0] - h * math.sin(zeta),p5[1] + h * math.cos(zeta)]
+                p7 = [p6[0] + w * math.cos(zeta),p6[1] + w * math.sin(zeta)]
+                p8 = [p7[0] + h * math.sin(zeta),p7[1] - h * math.cos(zeta)]
                 #whether trajectory is collision free.
                 collision = collision or iscollisionRectangle([p1,p2,p3,p4],[p5,p6,p7,p8])
     return collision
@@ -290,12 +293,12 @@ def RRT(s0,s1,obstacles):
             V.append(end)
         if len(V)>10000:
             break
-    print(len(V))
+    #print(len(V))
     trajectory = [end.state]
     while (end.parent != None):
         trajectory.append(end.parent.state)
         end = end.parent
-    return trajectory
+    return trajectory, V
 
 # For visualization: plot trajectory, obstacles, and points that represent the robot
 def plotTrajectory(trajectory, ax):
@@ -318,31 +321,77 @@ def plotPoint(point,ax):
     plt.arrow(point[0], point[1], 0.5*np.cos(point[2]),0.5*np.sin(point[2]), color='r', width=m/100)
     # plot center point 
     plt.plot(point[0], point[1],'bo')
-    # plot robot
-    x = point[0]+R*math.cos(point[2])+W/2*math.sin(point[2])-L*math.cos(point[2])
-    y = point[1]+R*math.sin(point[2])-W/2*math.cos(point[2])-L*math.sin(point[2])
-    rec = plt.Rectangle((x,y), L, W, angle = point[2]*180/math.pi, color = 'b')
+    # plot robot 
+    x = point[0] + R * math.cos(point[2]) +W / 2*math.sin(point[2]) - L * math.cos(point[2])
+    y = point[1] + R * math.sin(point[2]) - W / 2*math.cos(point[2]) - L * math.sin(point[2])
+    rec = plt.Rectangle((x, y), L, W, angle = point[2]*180 / math.pi, color = 'b')
     ax.add_patch(rec)
     return ax
 
+
+# Problem 3(a)
+# Run some examples that demonstrate the performance (in terms of computational efficiency, trajectory efficiency, and obstacle avoidance) of your planner as your robot tries to achieve various goals (such as head-in parking and parallel parking between other such parked vehicles). Clearly describe the experiments that were run, the data that was gathered, and the process by which you use that data to characterize the performance of your planner. Include figures; you may also refer to animations uploaded to your git repo.
+
+#test performance of RRT
+def RRT_test(s0, s1, obstacles):
+    start = time.time()
+    trajectory,V = RRT(s0,s1,obstacles)
+    end = time.time()
+    # Caculate time RRT need to find a trajectory
+    print(end - start)
+    # Caculate number of nodes need to find a trajectory
+    space = len(V)
+    print(space)
+    #Caculate time robot need to go for a trajectory
+    t = 0
+    for i in range(len(trajectory) - 1):
+        dx = trajectory[i+1][0] - trajectory[i][0]
+        dy = trajectory[i+1][1] - trajectory[i][1]
+        dz = trajectory[i+1][2] - trajectory[i][2]
+        t += math.sqrt(dx ** 2 + dy ** 2) / vx_max + dz / wmax_robot
+    print (t)
+    #plot figure
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    # plot start and goal
+    plotpoint(s0, ax)
+    plotpoint(s1, ax)
+    # plot trajectory
+    plottrajectory(trajectory, ax)
+    # plot obstacles
+    plotobstacles(obstacles, ax)
+    # plot grid
+    plt.xlim((-m / 10, m))
+    plt.ylim((-n / 10, n))
+    plt.grid()
+    plt.show()
+
 '''
 # For debug and test
-trajectory = RRT(s0,s1,obstacles)
+x=random.uniform(0,m)
+y=random.uniform(0,n)
+z=random.uniform(0,2*math.pi)
+s0=[0,0,0]
+s1=[x,y,z]
+obstacles=[]
+for i in range(10):
+    x=random.uniform(0,m)
+    y=random.uniform(0,n)
+    w=random.uniform(0,m/10)
+    h=random.uniform(0,n/10)
+    angle = random.uniform(0,180)
+    obstacles.append([x, y, w, h, angle])
 
-fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
-# plot start and goal
-plotpoint(s0,ax)
-plotpoint(st,ax)
-# plot trajectory
-plottrajectory(trajectory,ax)
-# plot obstacles
-plotobstacles(obstacles,ax)
-# plot grid
-plt.xlim((-m/10, m))
-plt.ylim((-n/10, n))
-plt.grid()
-plt.show()
+RRT_test(s0, s1, obstacles)
 '''
 
 
+
+# Prob 3(b)
+# Run some examples that demonstrate the performance. 
+
+# Prob 3(c)
+# Improve on your planner using the RRT* algorithm, and compare to your original RRT planner using the above metrics.
+
+# Prob 3(d)
+# Qualitatively describe some conclusions about the effectiveness of your planner for potential tasks your robot may encouter. For example, what happens to your planner in the presence of process noise, i.e. a stocastic system model? How might you modify your algorithm to better handle noise?
