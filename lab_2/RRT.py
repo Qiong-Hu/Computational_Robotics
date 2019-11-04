@@ -22,23 +22,25 @@ show_animation = True
 # Problem 1(a)
 # Define rebot model
 # input (action) space
-# A = {a}, a = (w1, w2). w1 and w2 represent angular velocity of wheel 1 and wheel 2. w1, w2 ∈ [-wmax, wmax] = [-1, 1] RPS
-D_A = 2     # The dimensionality is 2 
+# Input = {input}, input = (w1, w2). w1 and w2 represent angular velocity of wheel 1 and wheel 2. w1, w2 ∈ [-wmax, wmax] = [-1, 1] RPS
+D_I = 2     # The dimensionality is 2 
+
+# w is the angular velocity of the robot. positive: clockwise, negative: anti-clockwise
+# w = C * (w1 - w2) / W rad/s
+# v1, v2 represent velocity of wheel 1 and wheel 2
+# v1 = C * w1 mm/s, v2 = C * w2 mm/s
+# v is the velocity of the robot
+# v = (vx, vy), |v| = (v1 + v2) / 2 mm/s
+# vx = v cos(θ) = C * (w1 + w2) / 2 * cos(θ) mm/s
+# vy = v sin(θ) = C * (w1 + w2) / 2 * sin(θ) mm/s
 
 # robot state (configuration) space
-# S = {s}, s = (x, y, θ). Coordinate (x, y) represents the location of the centerpoint of the wheels, θ is the angle between +X and the direction of the robot, θ ∈ [0, 2*pi)
-D_S = 3     # The dimensionality is 3
+# Config = {config}, config = (x, y, θ). Coordinate (x, y) represents the location of the centerpoint of the wheels, θ is the angle between +X and the direction of the robot, θ ∈ [0, 2 * pi)
+D_C = 3     # The dimensionality is 3
 
 # operational space
-# O = {o}, o = (vx, vy, w). (vx, vy) is the velocity of the robot, w is the angular speed of the robot
-# v1 and v2 represent velocity of wheel 1 and wheel 2
-# v1 = 2 * pi * R * w1 mm/s 
-# v2 = 2 * pi * R * w2 mm/s
-# v = (v1 + v2) / 2 mm/s
-# vx = v cos(θ) = pi * R * (w1 + w2) * cos(θ) mm/s
-# vy = v sin(θ) = pi * R * (w1 + w2) * sin(θ) mm/s
-# w = 2 * pi * R * (w1 - w2) / W rad/s     # positive: clockwise, negative: anti-clockwise
-D_O = 3     # The dimensionality is 3
+# O = {o}, o = (x, y). Coordinate (x, y) represent the map with obstacles
+D_O = 2     # The dimensionality is 2
 
 
 # Problem 1(b)
@@ -124,6 +126,9 @@ def generate_trajectory(xi, xt):
     trajectory = []
     trajectory.append(xi)
 
+    # control inputs of two wheels
+    inputs = []
+
     # remaining time within one second, updated after each step
     remain_time = 1
 
@@ -150,6 +155,7 @@ def generate_trajectory(xi, xt):
     # calculate remaining time after step 1
     required_time = diff_angle % (math.pi / 2) / wmax_robot
     remain_time = 1 - required_time
+    inputs.append((-wmax, wmax, required_time))
 
     # calculate required time for step 2
     required_time = diff_dist / C
@@ -160,12 +166,14 @@ def generate_trajectory(xi, xt):
         dist = remain_time * C
         end = [xi[0] + dist * math.cos(angle), xi[1] + dist * math.sin(angle), end[2]]
         trajectory.append(end)
+        inputs.append((wmax, wmax, remain_time))
         # print(trajectory)
 
     # if the robot has enough time to reach the target after rotation
     else:
         end = [xt[0], xt[1], end[2]]
         trajectory.append(end)
+        inputs.append((wmax, wmax, required_time))
         # print(trajectory)
 
         # for the remaining time, do the step 3 (rotate to the orientation of the target state)
@@ -177,6 +185,7 @@ def generate_trajectory(xi, xt):
         # if have enough time for step 3, then arrive at the target state
         if remain_time >= required_time:
             trajectory.append(xt)
+            inputs.append((-wmax, wmax, required_time))
             # print(trajectory)
 
         # if not enough time for step 3
@@ -186,8 +195,9 @@ def generate_trajectory(xi, xt):
             else:
                 end[2] = end[2] + wmax_robot * remain_time
             trajectory.append(end)
+            inputs.append((-wmax, wmax, remain_time))
             # print(trajectory)
-    return trajectory
+    return trajectory, inputs
 
 
 # Problem 2(c)
