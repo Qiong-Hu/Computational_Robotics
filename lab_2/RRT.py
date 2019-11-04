@@ -335,12 +335,12 @@ def RRT(s0, s1, obstacles):
     return trajectory, V
 
 # For visualization: plot trajectory, obstacles, and points that represent the robot
-def plotTrajectory(trajectory, ax):
+def plotTrajectory(trajectory, ax, color = 'b'):
     for point in trajectory:
         # plot the robot
         x = point[0] + R * math.cos(point[2]) - W / 2 * math.sin(point[2]) - L * math.cos(point[2])
         y = point[1] + R * math.sin(point[2]) + W / 2 * math.cos(point[2]) - L * math.sin(point[2])
-        rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = 'b')
+        rec = plt.Rectangle((x, y), W, L, angle = point[2] * 180 / math.pi - 90, color = color)
         ax.add_patch(rec)
     return ax
 
@@ -352,7 +352,7 @@ def plotObstacles(obstacles, ax):
 
 def plotPoint(point, ax):
     # plot arrow
-    plt.arrow(point[0], point[1], 0.5 * np.cos(point[2]),0.5 * np.sin(point[2]), color = 'r', width = m / 100)
+    plt.arrow(point[0], point[1], 0.5 * math.cos(point[2]),0.5 * math.sin(point[2]), color = 'r', width = m / 100)
     # plot center point 
     plt.plot(point[0], point[1], 'bo')
     # plot robot 
@@ -437,9 +437,9 @@ experiments = [[2500, 4000, math.pi / 2], \
                [4000, 3500, 0], \
                [4000, 4500, 0]]
 
-for st in experiments:
-    test(RRT, s0, st, obstacles)
-    print()
+# for st in experiments:
+#     test(RRT, s0, st, obstacles)
+#     print()
 # test(RRT, s0, [200,200,0], obstacles)
 
 
@@ -488,3 +488,33 @@ def RRTstar(s0, s1, obstacles):
 # for st in experiments:
 #     test(RRTstar, s0, st, obstacles)
 #     print()
+
+def combine(s1, tra1, tra2):
+    # plot trajectory figure
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    # plot the map
+    plt.xlim([0, m])
+    plt.ylim([0, n])
+    plt.xticks(np.arange(0, m + 1, m / 5))
+    plt.yticks(np.arange(0, n + 1, n / 5))
+    plt.grid()
+    # plot obstacles
+    plotObstacles(obstacles, ax)
+
+    # plot start and goal state
+    plotPoint(s0, ax)
+    plotPoint(s1, ax)
+    # plot trajectory
+    plotTrajectory(tra1, ax, 'b')
+    plotTrajectory(tra2, ax, 'r')
+
+    plt.axis("square")
+    # plt.show()
+    fig.savefig("./img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + ".jpg")
+
+from trajectory_RRT import tra1
+from trajectory_RRTstar import tra2
+
+for expe in range(10):
+    combine(experiments[expe],tra1[expe],tra2[expe])
