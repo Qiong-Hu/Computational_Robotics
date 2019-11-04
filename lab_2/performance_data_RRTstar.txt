@@ -1,0 +1,49 @@
+Target state:       [2500, 4000, 1.5707963267948966]
+Calculation time:   34.51625084877014s
+Number of nodes:    1141
+Robot running time: 46.91874462258705s
+
+Target state:       [2500, 4000, -1.5707963267948966]
+Calculation time:   23.709447622299194s
+Number of nodes:    1491
+Robot running time: 37.91793418451942s
+
+Target state:       [2500, 4000, 0]
+Calculation time:   25.263545036315918s
+Number of nodes:    1562
+Robot running time: 38.849999999999994s
+
+Target state:       [2500, 1000, 1.5707963267948966]
+Calculation time:   16.992276906967163s
+Number of nodes:    1159
+Robot running time: 24.338188462455086s
+
+Target state:       [2500, 1000, -1.5707963267948966]
+Calculation time:   13.412325382232666s
+Number of nodes:    936
+Robot running time: 37.08049882920424s
+
+Target state:       [2500, 1000, 0]
+Calculation time:   19.745702743530273s
+Number of nodes:    1202
+Robot running time: 34.57722537425254s
+
+Target state:       [4000, 500, 0]
+Calculation time:   16.455583333969116s
+Number of nodes:    1027
+Robot running time: 29.878440650805874s
+
+Target state:       [4000, 1500, 0]
+Calculation time:   3.2961254119873047s
+Number of nodes:    248
+Robot running time: 40.92346681504521s
+
+Target state:       [4000, 3500, 0]
+Calculation time:   1.8239762783050537s
+Number of nodes:    138
+Robot running time: 43.39999999999998s
+
+Target state:       [4000, 4500, 0]
+Calculation time:   11.929174423217773s
+Number of nodes:    782
+Robot running time: 54.69999999999997s

@@ -367,7 +367,7 @@ def plotPoint(point, ax):
 # Evaluation and Extensions
 # Run some examples that demonstrate the performance (in terms of computational efficiency, trajectory efficiency, and obstacle avoidance) of your planner as your robot tries to achieve various goals (such as head-in parking and parallel parking between other such parked vehicles). Clearly describe the experiments that were run, the data that was gathered, and the process by which you use that data to characterize the performance of your planner. Include figures; you may also refer to animations uploaded to your git repo.
 
-# Caculate time that the robot needed to go using the generated trajectory
+# Calculate time that the robot needed to go using the generated trajectory
 def trajectory_time(trajectory):
     t = 0
     for i in range(len(trajectory) - 1):
@@ -378,7 +378,7 @@ def trajectory_time(trajectory):
     return t
 
 # test performance of RRT
-def test(s0, s1, RRT, obstacles):
+def test(RRT, s0, s1, obstacles):
     print("Target state:       " + str(s1))
 
     start = time.time()
@@ -407,7 +407,7 @@ def test(s0, s1, RRT, obstacles):
     # plot obstacles
     plotObstacles(obstacles, ax)
 
-    # plot start and goal statee
+    # plot start and goal state
     plotPoint(s0, ax)
     plotPoint(s1, ax)
     # plot trajectory
@@ -416,6 +416,11 @@ def test(s0, s1, RRT, obstacles):
     plt.axis("square")
     # plt.show()
     fig.savefig("./img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + "-" + time.strftime("%H%M%S", time.localtime()) + ".jpg")
+    
+    trajectoryOutfile=open("trajectory.txt", "a+")
+    trajectoryOutfile.write("img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + "-" + time.strftime("%H%M%S", time.localtime()) + ".jpg\n")
+    trajectoryOutfile.write(str(trajectory)+"\n\n")
+    trajectoryOutfile.close()
 
 
 # Problem 3(b)
@@ -432,10 +437,10 @@ experiments = [[2500, 4000, math.pi / 2], \
                [4000, 3500, 0], \
                [4000, 4500, 0]]
 
-for st in experiments:
-    test(s0, st, RRT, obstacles)
-    # print()
-# test(s0, [200,200,0], RRT, obstacles)
+# for st in experiments:
+#     test(RRT, s0, st, obstacles)
+#     print()
+# test(RRT, s0, [200,200,0], obstacles)
 
 
 # Problem 3(c)
@@ -458,7 +463,7 @@ def RRTstar(s0, s1, obstacles):
             end = Node(trajectory[-1])
             for node in V:
                 if ((end.state[0] - node.state[0]) / vx_max) ** 2 + ((end.state[1] - node.state[1]) / vy_max) ** 2 + ((end.state[2] - node.state[2]) / wmax_robot) ** 2 <= 1:
-                    trajectory = generate_trajectory(node.state, end.state)
+                    trajectory = generate_trajectory(node.state, end.state)[0]
                     if trajectory_time(trajectory) + node.t < mintime:
                         start = node
                         mintime = trajectory_time(trajectory) + node.t
@@ -478,4 +483,8 @@ def RRTstar(s0, s1, obstacles):
 # Problem 3(d)
 # Qualitatively describe some conclusions about the effectiveness of your planner for potential tasks your robot may encounter. For example, what happens to your planner in the presence of process noise, i.e. a stochastic system model? How might you modify your algorithm to better handle noise?
 
-# tra=RRTstar(s0,[400,400,0],obstacles)
+# tra=test(RRTstar, s0, [400,400,0], obstacles)
+
+for st in experiments:
+    test(RRTstar, s0, st, obstacles)
+    print()
