@@ -460,14 +460,20 @@ def RRTstar(s0, s1, obstacles):
         # if not collision, add it into V
         if not isCollisionTrajectory(trajectory, obstacles):
             end = Node(trajectory[-1])
-            for node in V:
-                if ((end.state[0] - node.state[0]) / vx_max) ** 2 + ((end.state[1] - node.state[1]) / vy_max) ** 2 + ((end.state[2] - node.state[2]) / wmax_robot) ** 2 <= 1:
-                    trajectory = generate_trajectory(node.state, end.state)[0]
-                    if trajectory_time(trajectory) + node.t < mintime:
-                        start = node
-                        mintime = trajectory_time(trajectory) + node.t
             end.parent = start
             end.t = mintime
+            # check if end has a better parent
+            for node in V:
+                trajectory1 = generate_trajectory(node.state, end.state)[0]
+                if trajectory_time(trajectory1) + node.t < end.t:
+                    end.parent = node
+                    end.t = trajectory_time(trajectory1) + node.t
+            # check if end can be a better parent
+            for node in V:
+                trajectory1 = generate_trajectory(end.state, node.state)[0]
+                if trajectory_time(trajectory1) + end.t < node.t:
+                    node.parent = end
+                    node.t = trajectory_time(trajectory1) + end.t     
             V.append(end)
         if len(V) > 20000:
             break
