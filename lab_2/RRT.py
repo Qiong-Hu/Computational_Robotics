@@ -415,12 +415,12 @@ def test(RRT, s0, s1, obstacles):
 
     plt.axis("square")
     # plt.show()
-    fig.savefig("./img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + "-" + time.strftime("%H%M%S", time.localtime()) + ".jpg")
-    
-    trajectoryOutfile=open("trajectory.txt", "a+")
-    trajectoryOutfile.write("img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + "-" + time.strftime("%H%M%S", time.localtime()) + ".jpg\n")
-    trajectoryOutfile.write(str(trajectory)+"\n\n")
-    trajectoryOutfile.close()
+    fig.savefig("./img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + "-" + time.strftime("%H%M%S", time.localtime()) + ".jpg", dpi = 300)
+
+    # trajectoryOutfile=open("trajectory.txt", "a+")
+    # trajectoryOutfile.write("img-" + str(s1[0]) + "-" + str(s1[1]) + "-" + str(s1[2]) + "-" + time.strftime("%H%M%S", time.localtime()) + ".jpg\n")
+    # trajectoryOutfile.write(str(trajectory)+"\n\n")
+    # trajectoryOutfile.close()
 
 
 # Problem 3(b)
@@ -455,7 +455,6 @@ def RRTstar(s0, s1, obstacles):
         start = find_closestNode(V, randompoint)
         # generate a trajectory from the closest starting point to the random point
         trajectory = generate_trajectory(start.state, randompoint)[0]
-        # start.t?
         mintime = trajectory_time(trajectory) + start.t
         # if not collision, add it into V
         if not isCollisionTrajectory(trajectory, obstacles):
@@ -491,3 +490,4 @@ def RRTstar(s0, s1, obstacles):
 for st in experiments:
     test(RRTstar, s0, st, obstacles)
     print()
+
