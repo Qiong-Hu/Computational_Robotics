@@ -45,11 +45,10 @@ d_theta = w_robot * dt
 dx = ds * math.cos(θ + d_theta/2) 
 dy = ds * math.sin(θ + d_theta/2) 
 
-# Sensor outputs: (d1, d2, θs, rs)
-# d1: the distance to a wall in a straight line in front of the robot 
+# Sensor outputs: (d1, d2, θs)
+# d1: the distance to a wall in a straight line in front of the robot
 # d2: the distance to a wall in a straight line to the right of the robot
-# θs: an absolute bearing indicating the angle of the robot with respect to magnetic north 
-# rs: the rotational speed from an angular rate (gyro) sensor
+# θs: an absolute bearing indicating the angle of the robot with respect to magnetic north (direction of +X)
 
 # Robot state space S = {s}, s = (x, y, θ)
 # Coordinate (x, y): the location of the centerpoint of the wheels
@@ -65,4 +64,54 @@ traj.append(s0)
 s = [traj[-1][0] + dx, traj[-1][1] + dy,  (traj[-1][2] + d_theta) % (2 * math.pi)]
 traj.append(s)
 
+
+# Problem 2(b)
+# Include realistic noise terms into the model as appropriate, and numerically quantify their parameters.
+
+# Observation (measurement) model
+# Define sensor errors: (d1e, d2e, θse), for each sensor output components
+
+# Predict sensor output from robot state
+# Steps:
+# 1, Calculate the angles between magnetic north (direction of +X) and the line connecting the four corners of the wall and robot
+# 2, Divide the intersection point on the wall into four regions, depend on the angle of the laser w.r.t. the angles to the corner
+# 3, Calculate the distance between the robot and the intersection in the front of the robot, which is an estimated value of the sensor output with gaussian distribution
+# 4, Repeat Step3 to calculate the distance to the right of the robot
+
+def stateToSensor(s):
+    # Given: robot state s = (x, y, theta)
+    # Return: sensor outputs (d1s, d2s, θs)
+    x, y, theta = s[0], s[1], s[2]
+    theta_s = theta + theta_se
+
+    # Calculate angle of (x, y) to (0, 0), (0, L), (L, 0), (L, W)
+    theta1 = math.atan2(W - y, L - x)             # top-right (L, W)
+    theta2 = math.atan2(W - y, -x)                # top-left (0, W)
+    theta3 = math.atan2(-y, -x) + 2 * math.pi     # bottom_left (0, 0)
+    theta4 = math.atan2(-y, L - x) + 2 * math.pi  # bottom_right (L, 0)
+
+    # Calculate the distance to the nearest wall in front of the robot
+    if  theta1 <= theta < theta2: # robot facing top side of the map
+        d1 = (W - y) / math.sin(theta)            
+    elif theta2 <= theta < theta3: # robot facing left side of the map
+        d1 = x / math.cos(math.pi - theta)
+    elif theta3 <= theta < theta4:
+        d1 = y / math.sin(theta - math.pi)
+    else:
+        d1 = (L - x) / math.cos(theta)
+
+    # Calculate the distance to the nearest wall to the right of the robot
+    theta = theta - math.pi / 2
+    if  theta1 <= theta < theta2: # robot facing top side of the map
+        d2 = (W - y) / math.sin(theta)            
+    elif theta2 <= theta < theta3: # robot facing left side of the map
+        d2 = x / math.cos(math.pi - theta)
+    elif theta3 <= theta < theta4:
+        d2 = y / math.sin(theta - math.pi)
+    else:
+        d2 = (L - x) / math.cos(theta)
+
+     d1s = d1 + d1e
+     d2s = d2 + d2e
+     return d1s, d2s, theta_s
 
