@@ -76,6 +76,53 @@ def stateTimeEvolution(s, inputs):
     # When t -> t+1: x -> x + dx, y -> y + dy, theta -> (theta + d_theta) % 2pi
     s_new = [s[0]+dx, s[1]+dy, (s[2] + d_theta)% (2 * math.pi), w_robot ]
     return s_new
+    
+    # Calculate matrix F, dimension of F is 4 x 4
+def Fmatrix(s, inputs):
+    w1, w2 = inputs
+    theta = s[2]
+    ds = (w1 + w2) * C * dt / 2
+    d_theta = (w2 - w1) * C * dt / width
+    F = np.array(
+        [[1, 0, -ds * math.sin(theta + d_theta / 2), 0],
+         [0, 1, ds * math.cos(theta + d_theta / 2), 0],
+         [0, 0, 1, 0],
+         [0, 0, 0, 0]])
+    return F
+
+# Calculate matrix W, dimension of W is 4 x 2
+def Wmatrix(s):
+    w1, w2 = inputs
+    theta = s[2]
+    ds = (w1 + w2) * C * dt / 2
+    d_theta = (w2 - w1) * C * dt / width
+    z1 = C * dt / 2
+    z2 = C * dt / width / 2
+    W = np.array([[z1 * math.cos(theta + theta) + ds * -math.sin(theta + d_theta / 2) * -z2, 
+        z1 * math.cos(theta + d_theta / 2) + ds * -math.sin(theta + d_theta / 2) * z2 ], 
+        [z1 * math.sin(theta+ d_theta / 2) + ds * math.cos(theta + d_theta / 2) * -z2, 
+        z1 * math.sin(theta + d_theta / 2) + ds * math.cos(theta + d_theta / 2) * z2], 
+        [-1/2 * dt, 1/2 * dt], 
+        [-1/2, 1/2]])
+    return W
+
+# Calculate matrix F, dimension of F is 4 x 4
+def Fmatrix(s, inputs):
+    w1, w2 = inputs
+    theta = s[2]
+    ds = (w1 + w2) * C * dt / 2
+    d_theta = (w2 - w1) * C * dt / width
+    F = np.array(
+        [[1, 0, -ds * math.sin(theta + d_theta / 2), 0],
+         [0, 1, ds * math.cos(theta + d_theta / 2), 0],
+         [0, 0, 1, 0],
+         [0, 0, 0, 0]])
+    return F
+
+# Calculate matrix Q
+# E[w, wˆT] = Q, w_cov = w * wˆT
+Qmatrix = np.array([[w_cov, 0],[0, w_cov]])
+
 
 # Observation (measurement) model
 
