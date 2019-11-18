@@ -50,19 +50,35 @@ dy = ds * math.sin(θ + d_theta/2)
 # d2: the distance to a wall in a straight line to the right of the robot
 # θs: an absolute bearing indicating the angle of the robot with respect to magnetic north (direction of +X)
 
-# Robot state space S = {s}, s = (x, y, θ)
-# Coordinate (x, y): the location of the centerpoint of the wheels
-# θ: the angle between +X and the direction of the robot, θ ∈ [0, 2 * pi)
+# Define robot state space S
+# S = {s}, s = (x, y, theta, omega)
+# (x, y): the location coordinate of the centerpoint of the wheels, x ∈ [0, L], y ∈ [0, W]
+# theta: the angle between +X and the orientation of the robot, theta ∈ [0, 2 * pi)
+# omega: the angular velocity of the robot, omega ∈ [-wmax_robot, wmax_robot]
 
-s0 = [0, 0, 0]      # Initial state
+s0 = [100, 100, 0, 0]      # Initial state
 
 # Time evolution model
-traj = []
-traj.append(s0)
-
-# When t -> t+1: x -> x + dx, y -> y + dy, theta -> (theta + d_theta) % 2pi
-s = [traj[-1][0] + dx, traj[-1][1] + dy,  (traj[-1][2] + d_theta) % (2 * math.pi)]
-traj.append(s)
+def stateTimeEvolution(s, inputs):
+    w1, w2 = inputs
+    # we: error of effective angular velocity,  we1, we2 ~ N(0, 0.05 * wmax)
+    we1 = np.random.normal(0, 0.05 * 1)
+    we2 = np.random.normal(0, 0.05 * 1)
+    # v1, v2: velocity of the left and right wheel, unit: mm/s
+    v1 = (w1 + we1) * C
+    v2 = (w2 + we2) * C
+    # Effective linear and angular velocity of the robot (angular velocity direction: positive: clockwise, negative: anti-clockwise)
+    v_robot = (v1 + v2) / 2         # unit: mm/s
+    w_robot = (v2 - v1) / width     # unit: rad/s
+    # Actual linear and angular displacement in time = dt = 0.1(unit: sec)
+    ds = v_robot * 0.1
+    d_theta = w_robot * 0.1
+    theta = s[2] 
+    dx = ds * math.cos(theta + d_theta/2) 
+    dy = ds * math.sin(theta + d_theta/2)
+    # When t -> t+1: x -> x + dx, y -> y + dy, theta -> (theta + d_theta) % 2pi
+    s_new = [s[0]+dx, s[1]+dy, (s[2] + d_theta)% (2 * math.pi), w_robot ]
+    return s_new
 
 
 # Problem 2(b)
@@ -79,10 +95,12 @@ traj.append(s)
 # 4, Repeat Step3 to calculate the distance to the right of the robot
 
 def stateToSensor(s):
-    # Given: robot state s = (x, y, theta)
-    # Return: sensor outputs (d1s, d2s, θs)
-    x, y, theta = s[0], s[1], s[2]
-    theta_s = theta + theta_se
+    # Given: robot state s = (x, y, theta, omega)
+    # Return: sensor outputs (d1_s, d2_s, theta_s, omega_s)
+
+    x, y, theta, omega = s[0], s[1], s[2], s[3]
+    theta_e = np.random.normal(0, 0.05 * 1)
+    theta_s = (theta + theta_e) % (2 * math.pi)
 
     # Calculate angle of (x, y) to (0, 0), (0, L), (L, 0), (L, W)
     theta1 = math.atan2(W - y, L - x)             # top-right (L, W)
@@ -101,7 +119,7 @@ def stateToSensor(s):
         d1 = (L - x) / math.cos(theta)
 
     # Calculate the distance to the nearest wall to the right of the robot
-    theta = theta - math.pi / 2
+    theta = (theta - math.pi / 2) % (2 * math.pi)
     if  theta1 <= theta < theta2: # robot facing top side of the map
         d2 = (W - y) / math.sin(theta)            
     elif theta2 <= theta < theta3: # robot facing left side of the map
@@ -111,7 +129,10 @@ def stateToSensor(s):
     else:
         d2 = (L - x) / math.cos(theta)
 
-     d1s = d1 + d1e
-     d2s = d2 + d2e
-     return d1s, d2s, theta_s
-
+    d1_e = np.random.normal(0, 0.05 * 1)
+    d2_e = np.random.normal(0, 0.05 * 1)
+    omega_e = np.random.normal(0, 0.05 * 1)
+    d1_s = d1 + d1_e
+    d2_s = d2 + d2_e
+    omega_s = omega + omega_e
+    return [d1s, d2s, theta_s, omega_s]
