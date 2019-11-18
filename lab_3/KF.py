@@ -30,25 +30,11 @@ wmax_robot = 2 * C * wmax / width      # unit: rad/s, maximum input angular velo
 # w1, w2: the input angular velocity of the left and right wheel, unit: RPS, range: [-wmax, wmax]
 # w1, w2 are controlled by signals from the microcontrollers. There may be slippage between the wheels and the floor or sticking in the gears of the motor, so assume the resulting effective angular speed of each wheel is Gaussian
 
-# v1, v2: velocity of the left and right wheel, unit: mm/s
-# we: error of effective angular velocity,  we1, we2 ~ N(0, 0.05 * wmax)
-v1 = (w1 + we1) * C
-v2 = (w2 + we2) * C
-
-# Effective linear and angular velocity of the robot (angular velocity direction: positive: clockwise, negative: anti-clockwise)
-v_robot = (v1 + v2) / 2         # unit: mm/s
-w_robot = (v2 - v1) / width     # unit: rad/s
-
-# Actual linear and angular displacement in time = dt (unit: sec)
-ds = v_robot * dt
-d_theta = w_robot * dt
-dx = ds * math.cos(θ + d_theta/2) 
-dy = ds * math.sin(θ + d_theta/2) 
-
-# Sensor outputs: (d1, d2, θs)
+# Sensor outputs: (d1, d2, theta, omega)
 # d1: the distance to a wall in a straight line in front of the robot
 # d2: the distance to a wall in a straight line to the right of the robot
-# θs: an absolute bearing indicating the angle of the robot with respect to magnetic north (direction of +X)
+# theta: an absolute bearing indicating the angle of the robot with respect to magnetic north (direction of +X) gained from an inertial measurement unit (IMU)
+# omega: a measurement of the rotational speed from an angular rate (gyro) sensor
 
 # Define robot state space S
 # S = {s}, s = (x, y, theta, omega)
@@ -58,7 +44,18 @@ dy = ds * math.sin(θ + d_theta/2)
 
 s0 = [100, 100, 0, 0]      # Initial state
 
+# Problem 2(b)
+# Include realistic noise terms into the model as appropriate, and numerically quantify their parameters.
+
+# Define sensor errors: (d1_e, d2_e, theta_e, omega_e), for each sensor output components
+
+
+# Problem 2(c)
+# Create a Kalman Filter based state estimator to take the motor commands and sensor measurements and generate a state estimate. Implement an Extended Kalman Filter (EKF), or an Unscented Kalman Filter (UKF).
+
 # Time evolution model
+# TODO: explain theories
+
 def stateTimeEvolution(s, inputs):
     w1, w2 = inputs
     # we: error of effective angular velocity,  we1, we2 ~ N(0, 0.05 * wmax)
@@ -80,18 +77,13 @@ def stateTimeEvolution(s, inputs):
     s_new = [s[0]+dx, s[1]+dy, (s[2] + d_theta)% (2 * math.pi), w_robot ]
     return s_new
 
-
-# Problem 2(b)
-# Include realistic noise terms into the model as appropriate, and numerically quantify their parameters.
-
 # Observation (measurement) model
-# Define sensor errors: (d1e, d2e, θse), for each sensor output components
 
 # Predict sensor output from robot state
 # Steps:
 # 1, Calculate the angles between magnetic north (direction of +X) and the line connecting the four corners of the wall and robot
 # 2, Divide the intersection point on the wall into four regions, depend on the angle of the laser w.r.t. the angles to the corner
-# 3, Calculate the distance between the robot and the intersection in the front of the robot, which is an estimated value of the sensor output with gaussian distribution
+# 3, Calculate the distance between the robot and the intersection in the front of the robot, which is an estimated value of the sensor output with a gaussian distribution
 # 4, Repeat Step3 to calculate the distance to the right of the robot
 
 def stateToSensor(s):
@@ -136,3 +128,5 @@ def stateToSensor(s):
     d2_s = d2 + d2_e
     omega_s = omega + omega_e
     return [d1s, d2s, theta_s, omega_s]
+
+    
