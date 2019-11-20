@@ -393,7 +393,7 @@ inputs1 = []
 for i in range(40):
     inputs1.append([1, 1])
 
-# Trajectory2: straight forward line in the direction of +Y
+# Trajectory2: straight line in the direction of +Y
 s02 = [100, 100, math.pi / 2, 0]
 inputs2 = []
 for i in range(40):
@@ -405,25 +405,25 @@ inputs3 = []
 for i in range(40):
     inputs3.append([1, 0])
 
-#trajectory4: anti-clockwise circular trajectory
+#trajectory4: counter-clockwise circular trajectory
 s04 = [200, 200, 0, 0]
 inputs4 = []
 for i in range(40):
     inputs4.append([0, 1])
 
-# Trajectory5: straight forward line in the direction of -X
+# Trajectory5: straight line in the direction of -X
 s05 = [400, 400, math.pi, 0]
 inputs5 = []
 for i in range(40):
     inputs5.append([1, 1])
 
-# Trajectory6: straight forward line in the direction of -Y
+# Trajectory6: straight line in the direction of -Y
 s06 = [400, 400, math.pi*3/2, 0]
 inputs6 = []
 for i in range(40):
     inputs6.append([1, 1])
 
-# Trajectory7: straight forward line in the direction of 45 degree from +X
+# Trajectory7: straight line in the direction of 45 degree from +X
 s07 = [100, 100, math.pi/4, 0]
 inputs7 = []
 for i in range(40):
