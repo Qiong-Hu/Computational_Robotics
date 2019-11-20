@@ -3,10 +3,8 @@ import matplotlib.pyplot as plt
 import math
 import random
 import time
-from filterpy.kalman import MerweScaledSigmaPoints
-from filterpy.kalman import UnscentedKalmanFilter as UKF
 
-# Problem 2(a) 
+# Problem 2(a)
 # Define the complete system model. You will need to derive and present the mathematical equations describing this robot plant, including the appropriate sensor and actuator models and system dynamics. Note that you will need to amend the state of your robot from the previous lab in order to accommodate this specific collection of sensors. Be sure to clearly define and describe all variables and equations, and produce illustrative diagrams as necessary.
 
 # Define the environment with a map and walls
@@ -24,7 +22,7 @@ C = 2 * math.pi * r    # unit: mm, circumference of the wheels
 
 # Maximum values of the robot motion
 wmax = 1                            # unit: RPS (rotations per second), maximum expected angular velocity of the wheels
-wmax_robot = 2 * C * wmax / width   # unit: rad/s, maximum expected angular velocity of the robot. wmax_robot = max{C * (w1 - w2) / width} = 2 * C * wmax / width (w1, w2 unit: RPS)
+wmax_robot = 2 * C * wmax / width   # unit: rad/s, maximum expected angular velocity of the robot. wmax_robot = max{C * (w2 - w1) / width} = 2 * C * wmax / width (w1, w2 unit: RPS)
 vmax_robot = wmax * C               # unit: mm/s, maximum expected velocity of the robot
 
 # Inputs: (w1, w2)
@@ -43,9 +41,6 @@ vmax_robot = wmax * C               # unit: mm/s, maximum expected velocity of t
 # theta: the angle between +X and the orientation of the robot, theta ∈ [0, 2 * pi), unit: rad
 # omega: the angular velocity of the robot, omega ∈ [-wmax_robot, wmax_robot], unit: rad/s
 
-s0 = [100, 100, 0, 0]      # Initial state
-
-
 # Problem 2(b)
 # Include realistic noise terms into the model as appropriate, and numerically quantify their parameters.
 
@@ -59,14 +54,13 @@ w_cov = (0.05 * wmax) ** 2     # w1_e, w2_e ~ N(0, w_cov)
 
 # Define measurement noise
 # (d1_e, d2_e, theta_e, omega_e): sensor errors for each sensor output components
-# d1_e ~ N(0, d1 * d_cov), d2_e ~ N(0, d2 * d_cov)
-d_cov = 0.06 ** 2       # unitless, standard deviation of the laser range sensor VL53L0X is 6%
+# d1_e ~ N(0, d1 * d1 * d_cov), d2_e ~ N(0, d2 * d2 * d_cov)
+d_cov = 0.06 ** 2       # unitless, standard deviation of the laser range sensor VL53L0X is 6%, relative d1, d2
 # theta_e ~ N(0, theta_cov)
 theta_cov = (0.1 / 180 * math.pi) ** 2      # unit: rad, standard deviation of the gyroscope on MPU-9250 is 0.1 degree
 # omega_e ~ N(omega_bias, omega_cov)
 omega_bias = 0      # unit: rad/s
-omega_cov = (0.1 / 180 * math.pi / dt) ** 2     # unit: rad/s
-
+omega_cov = (0.1 / 180 * math.pi) ** 2     # unit: rad/s, standard deviation of the omega on MPU-9250 is 0.1/dt degree/s, dt is the time step
 
 # Problem 2(c)
 # Create a Kalman Filter based state estimator to take the motor commands and sensor measurements and generate a state estimate. Implement an Extended Kalman Filter (EKF), or an Unscented Kalman Filter (UKF).
@@ -79,10 +73,10 @@ omega_cov = (0.1 / 180 * math.pi / dt) ** 2     # unit: rad/s
 # u(t): inputs at time t
 # w(t): input noises at time t
 # Linear approximation: s(t + dt) ≈ F(t) s(t) + W(t) w(t)
-# Matrix F(t)[i][j] = df/dx
+# Matrix F(t)[i][j] = df/dx, TODO
 
 # Update state from t to t + dt
-def stateTimeEvolution(s, inputs, noise = True):
+def stateTimeEvolution(s, inputs, w_cov = 0):
     # Given: current state s = (x, y, theta, omega)
     # Given: inputs from actuators, inputs = (w1, w2), angular velocities of the two wheels
     # Return: updated state s' = (x', y', theta', omega') after evolving for time dt
@@ -90,7 +84,6 @@ def stateTimeEvolution(s, inputs, noise = True):
     w1, w2 = inputs
 
     # w1_e, w2_e: error of effective angular velocity, ~ N(0, w_cov)
-    w_cov = w_cov * noise
     w1_e = np.random.normal(0, math.sqrt(w_cov))
     w2_e = np.random.normal(0, math.sqrt(w_cov))
 
@@ -98,7 +91,7 @@ def stateTimeEvolution(s, inputs, noise = True):
     v1 = (w1 + w1_e) * C
     v2 = (w2 + w2_e) * C
 
-    # Effective linear and angular velocity of the robot (angular velocity direction: positive: clockwise, negative: anti-clockwise)
+    # Effective linear and angular velocity of the robot (angular velocity direction: positive: anti-clockwise, negative: clockwise)
     v_robot = (v1 + v2) / 2         # unit: mm/s
     w_robot = (v2 - v1) / width     # unit: rad/s
 
@@ -127,7 +120,7 @@ def Fmatrix(s, inputs):
     return F
 
 # Calculate matrix W, dimension of W is 4 x 2
-def Wmatrix(s):
+def Wmatrix(s, inputs):
     w1, w2 = inputs
     theta = s[2]
     ds = (w1 + w2) * C * dt / 2
@@ -144,7 +137,9 @@ def Wmatrix(s):
 
 # Calculate matrix Q
 # E[w*wˆT] = Q
-Qmatrix = np.array([[w_cov, 0], [0, w_cov]])
+def Qmatrix (w_cov = 0):
+    Q = np.array([[w_cov, 0], [0, w_cov]])
+    return Q
 
 # Observation (measurement) model
 # TODO: explain theories
@@ -152,11 +147,11 @@ Qmatrix = np.array([[w_cov, 0], [0, w_cov]])
 # Predict sensor output from robot state
 # Steps:
 # 1, Calculate the angles between magnetic north (direction of +X) and the line connecting the four corners of the wall and robot
-# 2, Divide the intersection point on the wall into four regions, depend on the angle of the laser w.r.t. the angles to the corner
+# 2, Divide the intersection point on the wall into four regions, depending on the angle of the laser w.r.t. the angles to the corner
 # 3, Calculate the distance between the robot and the intersection in the front of the robot, which is an estimated value of the sensor output with a gaussian distribution
 # 4, Repeat Step3 to calculate the distance to the right of the robot
 
-def stateToSensor(s):
+def stateToSensor(s, d_cov = 0, theta_cov = 0, omega_bias = 0, omega_cov = 0):
     # Given: robot state s = (x, y, theta, omega)
     # Return: sensor outputs (d1_s, d2_s, theta_s, omega_s)
 
@@ -164,7 +159,7 @@ def stateToSensor(s):
     theta_e = np.random.normal(0, math.sqrt(theta_cov))
     theta_s = (theta + theta_e) % (2 * math.pi)
 
-    # Calculate angle of (x, y) to (0, 0), (0, L), (L, 0), (L, W)
+    # Calculate angle of the vector pointing from (x, y) to (0, 0), (0, L), (L, 0), (L, W)
     theta1 = math.atan2(W - y, L - x)             # top-right (L, W)
     theta2 = math.atan2(W - y, -x)                # top-left (0, W)
     theta3 = math.atan2(-y, -x) + 2 * math.pi     # bottom_left (0, 0)
@@ -203,22 +198,28 @@ def stateToSensor(s):
 def Hmatrix(s):
     
     x, y, theta, omega = s[0], s[1], s[2], s[3]
+    
+    # Calculate angle of (x, y) to (0, 0), (0, L), (L, 0), (L, W)
+    theta1 = math.atan2(W - y, L - x)             # top-right (L, W)
+    theta2 = math.atan2(W - y, -x)                # top-left (0, W)
+    theta3 = math.atan2(-y, -x) + 2 * math.pi     # bottom_left (0, 0)
+    theta4 = math.atan2(-y, L - x) + 2 * math.pi  # bottom_right (L, 0)
 
     if  theta1 <= theta < theta2: # robot facing top side of the map
         # d1 = (W - y) / math.sin(theta)
         h00 = 0
         h01 = -1/math.sin(theta)
-        h02 = (W - y) * -math.cos(theta)/ math.sin(theta)**2       
+        h02 = (W - y) * -1 * math.cos(theta)/ math.sin(theta)**2       
     elif theta2 <= theta < theta3: # robot facing left side of the map
         # d1 = x / math.cos(math.pi - theta)
         h00 = 1 / math.cos(math.pi - theta)
         h01 = 0
-        h02 = x * -math.sin(math.pi - theta)/ math.cos(math.pi - theta)**2
+        h02 = x * -1 * math.sin(math.pi - theta)/ math.cos(math.pi - theta)**2
     elif theta3 <= theta < theta4:
         # d1 = y / math.sin(theta - math.pi)
         h00 = 0
-        h01 = -1/ math.sin(theta - math.pi)
-        h02 = y * -math.cos(theta - math.pi)/ math.sin(theta - math.pi)**2
+        h01 = 1/ math.sin(theta - math.pi)
+        h02 = y * -1 * math.cos(theta - math.pi)/ math.sin(theta - math.pi)**2
     else:
         # d1 = (L - x) / math.cos(theta)
         h00 = -1 / math.cos(theta)
@@ -231,17 +232,17 @@ def Hmatrix(s):
         #d2 = (W - y) / math.sin(theta)  
         h10 = 0
         h11 = -1/math.sin(theta)
-        h12 = (W - y) * -math.cos(theta)/ math.sin(theta)**2          
+        h12 = (W - y) * -1 *math.cos(theta)/ math.sin(theta)**2          
     elif theta2 <= theta < theta3: # robot facing left side of the map
         #d2 = x / math.cos(math.pi - theta)
         h10 = 1 / math.cos(math.pi - theta)
         h11 = 0
-        h12 = x * -math.sin(math.pi - theta)/ math.cos(math.pi - theta)**2
+        h12 = x * -1 * math.sin(math.pi - theta)/ math.cos(math.pi - theta)**2
     elif theta3 <= theta < theta4:
         #d2 = y / math.sin(theta - math.pi)
         h10 = 0
-        h11 = -1/ math.sin(theta - math.pi)
-        h12 = y * -math.cos(theta - math.pi)/ math.sin(theta - math.pi)**2
+        h11 = 1/ math.sin(theta - math.pi)
+        h12 = y * -1 * math.cos(theta - math.pi)/ math.sin(theta - math.pi)**2
     else:
         #d2 = (L - x) / math.cos(theta)
         h10 = -1 / math.cos(theta)
@@ -294,15 +295,6 @@ def Rmatrix(s):
     ])
     return R
 
-# For implementing pre-programmed trajectories
-def plotTrajectory1(trajectory, isReal):
-    if isReal:
-        for point in trajectory:
-            plt.plot(point[0], point[1], 'bo')
-    else:
-        for point in trajectory:
-            plt.plot(point[0], point[1], 'ro')
-
 # Create Extended Kalman Filter (EKF)
 def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, omega_bias, omega_cov, Fmatrix, Wmatrix, Qmatrix, Hmatrix, Rmatrix):
     step = len(inputs)
@@ -322,7 +314,7 @@ def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, ome
         #actual state
         s1 = timeupdate(s, w, w_cov)
         #get observation for s1
-        ob = getobservation(s1, d_cov, theta_cov, omega_bias, omega_cov)
+        ob = getObservation(s1, d_cov, theta_cov, omega_bias, omega_cov)
         obs.append(ob)
         traj.append(s1)
 
@@ -336,7 +328,7 @@ def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, ome
         R = Rmatrix(s1)
         H = Hmatrix(s1)
         K = np.dot(H, P).dot(H.T) + R
-        s2 = list(np.array(s1) + np.dot(P, H.T).dot(np.linalg.inv(K)).dot(np.array(ob) - np.array(getobservation(s1,0,0,omega_bias,0))))
+        s2 = list(np.array(s1) + np.dot(P, H.T).dot(np.linalg.inv(K)).dot(np.array(ob) - np.array(getObservation(s1,0,0,omega_bias,0))))
         P = P - np.dot(P, H.T).dot(np.linalg.inv(K)).dot(H).dot(P)
         exp.append(s2)
     return traj, exp, obs
@@ -345,37 +337,87 @@ def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, ome
 # Define and describe several reference trajectories (that in turn generate control input sequences) that capture the abilities and limitations of a state estimator in this environment.
 #trajectory is determined by initial state s0 and control input sequences
 #trajectory1
-s0 = [100,100, 0, 0]
+s0 = [100, 100, 0, 0]
 inputs = []
 for i in range(20):
-    inputs.append([1,1])
+    inputs.append([1, 1])
 
 #trajectory2
-s0 = [100,100, math.pi/2, 0]
+s0 = [100, 100, math.pi/2, 0]
 inputs = []
 for i in range(20):
     inputs.append([1,1])
 
 #trajectory3
-s0 = [200,200, 0, 0]
+s0 = [200, 200, 0, 0]
 inputs = []
 for i in range(20):
-    inputs.append([1,0])
+    inputs.append([1, 0])
 
 #trajectory4
-s0 = [200,200, 0, 0]
+s0 = [200, 200, 0, 0]
 inputs = []
 for i in range(20):
-    inputs.append([0,1])
+    inputs.append([0, 1])
 
 #trajectory5
-s0 = [400,400, math.pi, 0]
+s0 = [400, 400, math.pi, 0]
 inputs = []
 for i in range(20):
     inputs.append([1,1])
 
 #trajectory6
-s0 = [400,400, math.pi*3/2, 0]
+s0 = [400, 400, math.pi*3/2, 0]
 inputs = []
 for i in range(20):
-    inputs.append([1,1])
+    inputs.append([1, 1])
+
+# Problem 3(b)
+# Implement a simulation, including models of your sensor and actuator response (especially including noise)l to generate realistic sensor traces given the above control inputs. Present and explain the simulated sensor traces.
+
+# Assign a trajectory
+s0 = [100, 100, 0, 0]
+inputs = []
+for i in range(20):
+    inputs.append([1, 1])
+
+# Initial state with zero covariance
+P0 = np.zeros((4,4))
+# Obtain sensor observations
+traj, exp, obs = EKF(s0, P0, inputs, stateTimeEvolution, stateToSensor, w_cov, d_cov, theta_cov, omega_bias, omega_cov, Fmatrix, Wmatrix, Qmatrix, Hmatrix, Rmatrix)
+
+# Get realistic sensor traces
+print(obs)
+
+# Problem 3(c)
+# Implement your KF based state estimator on these examples, demonstrating the performance (in terms of accuracy and efficiency) of your computed state estimate over time as the robot is issued commanded input 2 sequences. Consider both perfect knowledge of the initial state as well as no knowledge of the initial state on the same traces. Clearly describe the experiments that were run, the data that was gathered, and the process by which you use that data to characterize the performance of your state estimator. Include figures; you may also refer to animations uploaded to your git repo.
+
+# For implementing pre-programmed trajectories
+def plotTrajectory(trajectory, isreal):
+    if isreal:
+        for point in trajectory:
+            plt.plot(point[0], point[1],'bo', markersize=2)
+    else:
+        for point in trajectory:
+            plt.plot(point[0], point[1],'ro', markersize=2)
+
+#plot std error 
+def plotstdTrajectory(trajectory, rlist):
+    for i in range(len(trajectory)):
+        plt.plot(trajectory[i][0], trajectory[i][1],'go', markersize=5*rlist[i*2], alpha = 0.1)
+        plt.plot(trajectory[i][0], trajectory[i][1],'go', markersize=5*rlist[i*2+1], alpha = 0.1)
+
+# for perfect knowledge of the initial state
+P0 = np.zeros((4,4))
+# for no knowledge of the initial state
+P0 = np.array([])
+def performance(traj, exp):
+
+# Problem 3(d)
+
+# Problem 3(e)
+
+
+
+
+
