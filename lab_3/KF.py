@@ -322,7 +322,7 @@ def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, ome
         #actual state
         s1 = timeupdate(s, w, w_cov)
         #get observation for s1
-        ob = getobservation(s1, d_cov, theta_cov, omega_bias, omega_cov)
+        ob = getObservation(s1, d_cov, theta_cov, omega_bias, omega_cov)
         obs.append(ob)
         traj.append(s1)
 
@@ -336,7 +336,7 @@ def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, ome
         R = Rmatrix(s1)
         H = Hmatrix(s1)
         K = np.dot(H, P).dot(H.T) + R
-        s2 = list(np.array(s1) + np.dot(P, H.T).dot(np.linalg.inv(K)).dot(np.array(ob) - np.array(getobservation(s1,0,0,omega_bias,0))))
+        s2 = list(np.array(s1) + np.dot(P, H.T).dot(np.linalg.inv(K)).dot(np.array(ob) - np.array(getObservation(s1, 0, 0, omega_bias,0))))
         P = P - np.dot(P, H.T).dot(np.linalg.inv(K)).dot(H).dot(P)
         exp.append(s2)
     return traj, exp, obs
@@ -345,38 +345,54 @@ def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, ome
 # Define and describe several reference trajectories (that in turn generate control input sequences) that capture the abilities and limitations of a state estimator in this environment.
 #trajectory is determined by initial state s0 and control input sequences
 #trajectory1
-s0 = [100,100, 0, 0]
+s0 = [100, 100, 0, 0]
 inputs = []
 for i in range(20):
-    inputs.append([1,1])
+    inputs.append([1, 1])
 
 #trajectory2
-s0 = [100,100, math.pi/2, 0]
+s0 = [100, 100, math.pi/2, 0]
 inputs = []
 for i in range(20):
     inputs.append([1,1])
 
 #trajectory3
-s0 = [200,200, 0, 0]
+s0 = [200, 200, 0, 0]
 inputs = []
 for i in range(20):
-    inputs.append([1,0])
+    inputs.append([1, 0])
 
 #trajectory4
-s0 = [200,200, 0, 0]
+s0 = [200, 200, 0, 0]
 inputs = []
 for i in range(20):
-    inputs.append([0,1])
+    inputs.append([0, 1])
 
 #trajectory5
-s0 = [400,400, math.pi, 0]
+s0 = [400, 400, math.pi, 0]
 inputs = []
 for i in range(20):
     inputs.append([1,1])
 
 #trajectory6
-s0 = [400,400, math.pi*3/2, 0]
+s0 = [400, 400, math.pi*3/2, 0]
 inputs = []
 for i in range(20):
-    inputs.append([1,1])
+    inputs.append([1, 1])
 
+# Problem 3(b)
+# Implement a simulation, including models of your sensor and actuator response (especially including noise)l to generate realistic sensor traces given the above control inputs. Present and explain the simulated sensor traces.
+
+# Assign a trajectory
+s0 = [100, 100, 0, 0]
+inputs = []
+for i in range(20):
+    inputs.append([1, 1])
+
+# Initial state with zero covariance
+P0 = np.zeros((4,4))
+# Obtain sensor observations
+traj, exp, obs = EKF(s0, P0, inputs, stateTimeEvolution, stateToSensor, w_cov, d_cov, theta_cov, omega_bias, omega_cov, Fmatrix, Wmatrix, Qmatrix, Hmatrix, Rmatrix)
+
+# Get realistic sensor traces
+print(obs)
