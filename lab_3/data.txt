@@ -1,0 +1,85 @@
+#trajectory1
+s0 = [100, 100, 0, 0]
+inputs = []
+for i in range(40):
+    inputs.append([1, 1])
+
+with all knowledge
+errormean,errorstd = (1.602472976294862, 1.8894856204432566)
+
+with no knowledge
+errormean,errorstd = (2.5226583188103717, 2.974339480051464)
+
+
+#trajectory2
+s0 = [100, 100, math.pi/2, 0]
+inputs = []
+for i in range(40):
+    inputs.append([1,1])
+
+with all knowledge
+errormean,errorstd = (1.080358906877173, 1.2598585412242216)
+with no knowledge
+errormean,errorstd = (4.431163840403888, 5.031209821748348)
+
+
+#trajectory3
+s0 = [200, 200, 0, 0]
+inputs = []
+for i in range(40):
+    inputs.append([1, 0])
+
+with all knowledge
+errormean,errorstd= (1.0603885485396294, 1.2719689431196395)
+
+with no knowledge
+errormean,errorstd = (3.602263437627723, 3.7984551001524385)
+
+#trajectory4
+s0 = [200, 200, 0, 0]
+inputs = []
+for i in range(40):
+    inputs.append([0, 1])
+
+with all knowledge
+errormean,errorstd = (2.0786023759997274, 2.1603180676509433)
+
+with no knowledge
+errormean,errorstd = (3.6053469621570238, 4.088392122137377)
+
+#trajectory5
+s0 = [400, 400, math.pi, 0]
+inputs = []
+for i in range(40):
+    inputs.append([1,1])
+
+with all knowledge
+errormean,errorstd = (0.7870196845637791, 1.0132513292672807)
+
+with no knowledge
+errormean,errorstd = (2.7322297100073394, 3.0133619425364526)
+
+#trajectory6
+s0 = [400, 400, math.pi*3/2, 0]
+inputs = []
+for i in range(40):
+    inputs.append([1, 1])
+
+with all knowledge
+errormean,errorstd = (1.0032257955585324, 1.277183503246801)
+
+with no knowledge
+errormean,errorstd = (5.480514520636347, 8.304636485381678)
+
+#trajectory7
+s0 = [100, 100, math.pi/4, 0]
+inputs = []
+for i in range(40):
+    inputs.append([1, 1])
+
+with all knowledge
+errormean,errorstd = (1.3516863371865444, 1.5486805969116921)
+
+with no knowledge
+errormean,errorstd = (2.631935724286093, 3.5984481294161252)
+
