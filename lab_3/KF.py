@@ -257,9 +257,126 @@ def Hmatrix(s):
     return H
 
 # Calculate matrix R
-Rmatrix = np.array([[d_cov, 0, 0, 0],
-    [0, d_cov, 0, 0],
+def Rmatrix(s):
+    x, y, theta, omega = s[0], s[1], s[2], s[3]
+    
+    # Calculate angle of (x, y) to (0, 0), (0, L), (L, 0), (L, W)
+    theta1 = math.atan2(W - y, L - x)             # top-right (L, W)
+    theta2 = math.atan2(W - y, -x)                # top-left (0, W)
+    theta3 = math.atan2(-y, -x) + 2 * math.pi     # bottom_left (0, 0)
+    theta4 = math.atan2(-y, L - x) + 2 * math.pi  # bottom_right (L, 0)
+
+    # Calculate the distance to the nearest wall in front of the robot
+    if  theta1 <= theta < theta2: # robot facing top side of the map
+        d1 = (W - y) / math.sin(theta)            
+    elif theta2 <= theta < theta3: # robot facing left side of the map
+        d1 = x / math.cos(math.pi - theta)
+    elif theta3 <= theta < theta4:
+        d1 = y / math.sin(theta - math.pi)
+    else:
+        d1 = (L - x) / math.cos(theta)
+
+    # Calculate the distance to the nearest wall to the right of the robot
+    theta = (theta - math.pi / 2) % (2 * math.pi)
+    if  theta1 <= theta < theta2: # robot facing top side of the map
+        d2 = (W - y) / math.sin(theta)            
+    elif theta2 <= theta < theta3: # robot facing left side of the map
+        d2 = x / math.cos(math.pi - theta)
+    elif theta3 <= theta < theta4:
+        d2 = y / math.sin(theta - math.pi)
+    else:
+        d2 = (L - x) / math.cos(theta)
+
+    R = np.array([[d_cov * d1 *d1, 0, 0, 0],
+    [0, d_cov * d2 *d2, 0, 0],
     [0, 0, theta_cov, 0],
     [0, 0, 0, omega_cov]
     ])
+    return R
+
+# For implementing pre-programmed trajectories
+def plotTrajectory1(trajectory, isReal):
+    if isReal:
+        for point in trajectory:
+            plt.plot(point[0], point[1], 'bo')
+    else:
+        for point in trajectory:
+            plt.plot(point[0], point[1], 'ro')
+
+# Create Extended Kalman Filter (EKF)
+def EKF(s0, P0, inputs, timeupdate, getObservation, w_cov, d_cov, theta_cov, omega_bias, omega_cov, Fmatrix, Wmatrix, Qmatrix, Hmatrix, Rmatrix):
+    step = len(inputs)
+
+    traj, exp = [s0], [s0]
+    obs =[]
+    s = s0
+    P = P0
+
+    for i in range(step):
+        s = traj[i]
+        w = inputs[i]
+        F = Fmatrix(s, w)
+        W = Wmatrix(s, w)
+        Q = np.dot(W, Qmatrix(w_cov)).dot(W.T)
+
+        #actual state
+        s1 = timeupdate(s, w, w_cov)
+        #get observation for s1
+        ob = getobservation(s1, d_cov, theta_cov, omega_bias, omega_cov)
+        obs.append(ob)
+        traj.append(s1)
+
+        #time update estimate
+        s = exp[i]
+        s1 = timeupdate(s, w, 0)
+        P = np.dot(F, P).dot(F.T) + Q
+        #exp.append(s1)
+
+        #observation update estimate
+        R = Rmatrix(s1)
+        H = Hmatrix(s1)
+        K = np.dot(H, P).dot(H.T) + R
+        s2 = list(np.array(s1) + np.dot(P, H.T).dot(np.linalg.inv(K)).dot(np.array(ob) - np.array(getobservation(s1,0,0,omega_bias,0))))
+        P = P - np.dot(P, H.T).dot(np.linalg.inv(K)).dot(H).dot(P)
+        exp.append(s2)
+    return traj, exp, obs
+
+# Problem 3(a)
+# Define and describe several reference trajectories (that in turn generate control input sequences) that capture the abilities and limitations of a state estimator in this environment.
+#trajectory is determined by initial state s0 and control input sequences
+#trajectory1
+s0 = [100,100, 0, 0]
+inputs = []
+for i in range(20):
+    inputs.append([1,1])
+
+#trajectory2
+s0 = [100,100, math.pi/2, 0]
+inputs = []
+for i in range(20):
+    inputs.append([1,1])
+
+#trajectory3
+s0 = [200,200, 0, 0]
+inputs = []
+for i in range(20):
+    inputs.append([1,0])
+
+#trajectory4
+s0 = [200,200, 0, 0]
+inputs = []
+for i in range(20):
+    inputs.append([0,1])
+
+#trajectory5
+s0 = [400,400, math.pi, 0]
+inputs = []
+for i in range(20):
+    inputs.append([1,1])
+
+#trajectory6
+s0 = [400,400, math.pi*3/2, 0]
+inputs = []
+for i in range(20):
+    inputs.append([1,1])
 
