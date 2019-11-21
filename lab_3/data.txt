@@ -93,16 +93,4 @@ with all knowledge
 errormean,errorstd = (2.060141541661322, 2.650999083614479)
 
 with no knowledge
-errormean,errorstd = (2.631935724286093, 3.5984481294161252)
-
-#trajectory7, omega_bais = 0.1 * t
-s0 = [100, 100, math.pi/4, 0]
-inputs = []
-for i in range(40):
-    inputs.append([1, 1])
-
-with all knowledge
-errormean,errorstd = (1.3516863371865444, 1.5486805969116921)
-
-with no knowledge
-errormean,errorstd = (2.631935724286093, 3.5984481294161252)
+errormean,errorstd = (4.481584360810518, 4.853746480315872)
