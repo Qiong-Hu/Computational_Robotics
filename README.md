@@ -15,7 +15,7 @@
 - Compared performance of RRT* algorithm on the planner vs. original RRT planner used previously
 
 ## Project 3 -- Kalman Filtering (KF) for Robot state-estimation
-## Deliverables:
+### Deliverables:
 - Two-wheeled robot with microcontroller in both ideal state and real state considered
 - Mathematical setup of the robot in a rectangular space:
 - Create a Kalman Filter based state estimator to generate a state estimate, based on motor commands and sensor measurements
