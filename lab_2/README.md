@@ -55,15 +55,24 @@ The goal of this lab is to explore build autonomy into a simple two-wheeled non-
 |      RRT       | [2500, 1000, 0]  |   14.3   |           985            |      34.3       |
 |     RRT\*      | [2500, 1000, 0]  |   19.7   |           1202           |      34.6       |
 
-3. Visualization (RRT vs RRY\*)
+3. Visualization (RRT vs RRT\*)
 
-<img src="test_data/compared_img/img-2500-1000-0.jpg" width="30%">
-<img src="test_data/compared_img/img-2500-1000-pi_2.jpg" width="30%">
-<img src="test_data/compared_img/img-2500-1000--pi_2.jpg" width="30%">
-<img src="test_data/compared_img/img-2500-4000-0.jpg" width="30%">
-<img src="test_data/compared_img/img-2500-4000-pi_2.jpg" width="30%">
-<img src="test_data/compared_img/img-2500-4000--pi_2.jpg" width="30%">
-<img src="test_data/compared_img/img-4000-500-0.jpg" width="30%">
-<img src="test_data/compared_img/img-4000-1500-0.jpg" width="30%">
-<img src="test_data/compared_img/img-4000-3500-0.jpg" width="30%">
-<img src="test_data/compared_img/img-4000-4500-0.jpg" width="30%">
+(red trajectory: RRT; blue trajectory: RRT\*)
+
+<img src="test_data/compared_img/img-2500-1000-0.jpg" width="30%"> <img src="test_data/compared_img/img-2500-1000-pi_2.jpg" width="30%"> <img src="test_data/compared_img/img-2500-1000--pi_2.jpg" width="30%">
+
+Target state position: (2500, 1000), orientation left to right: 0, π/2, -π/2
+
+<img src="test_data/compared_img/img-2500-4000-0.jpg" width="30%"> <img src="test_data/compared_img/img-2500-4000-pi_2.jpg" width="30%"> <img src="test_data/compared_img/img-2500-4000--pi_2.jpg" width="30%">
+
+Target state position: (2500, 4000), orientation left to right: 0, π/2, -π/2
+
+<img src="test_data/compared_img/img-4000-500-0.jpg" width="45%"> <img src="test_data/compared_img/img-4000-1500-0.jpg" width="45%">
+
+<img src="test_data/compared_img/img-4000-3500-0.jpg" width="45%"> <img src="test_data/compared_img/img-4000-4500-0.jpg" width="45%">
+
+Target state orientation: 0, position left to right: (4000, 500), (4000, 1500), (4000, 3500), (4000, 4500)
+
+<br>
+
+Full report see: [report.pdf](lab_2_report.pdf)
