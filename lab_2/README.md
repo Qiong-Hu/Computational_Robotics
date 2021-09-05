@@ -15,6 +15,7 @@ The goal of this lab is to explore build autonomy into a simple two-wheeled non-
 1. Robot model
     - Define fully observable system model in continuous space
     <img src="test_data/img-start_state.jpg" width="50%">
+    (black area: obstacles; start state position: (0, 0), orientation: 0)
 
 2. Trajectory planning
     - Design metric definition for closest point to target point
