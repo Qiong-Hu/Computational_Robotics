@@ -31,16 +31,16 @@ The goal of this lab is to explore Markov Decision Processes (MDPs) to control a
 
 ### Results from different scenarios
 
-![Policy iteration with $p_e=0$](result/img-022723 policy reward pe=0.jpg)
+<img src="result/img-022723%20policy%20reward%20pe=0.jpg">
 Policy iteration with $p_e=0$
 
-![Value iteration with $p_e=0$](result/img-024719 value reward pe=0.jpg)
+<img src="result/img-024719%20value%20reward%20pe=0.jpg">
 Value iteration with $p_e=0$
 
-![Policy iteration with $p_e=0.25$](result/img-032313 policy reward pe=0.25.jpg)
+<img src="result/img-032313%20policy%20reward%20pe=0.25.jpg">
 Policy iteration with $p_e=0.25$
 
-![Value iteration with $p_e=0.25$](result/img-034420 value reward pe=0.25.jpg)
+<img src="result/img-034420%20value%20reward%20pe=0.25.jpg">
 Value iteration with $p_e=0.25$
 
 <br>
