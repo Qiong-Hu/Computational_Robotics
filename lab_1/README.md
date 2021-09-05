@@ -1,3 +1,3 @@
-Write-up: https://github.com/Qiong-Hu/Computational_Robotics/blob/master/lab_1/Write-up.pdf
+Write-up: [report.pdf](lab_1_report.pdf)
 
 Write-up Overleaf: https://www.overleaf.com/read/tspqdnhqcdrt
