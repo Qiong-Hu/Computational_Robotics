@@ -31,18 +31,19 @@ The goal of this lab is to explore Markov Decision Processes (MDPs) to control a
 
 ### Results from different scenarios
 
-<img src="result/img-022723%20policy%20reward%20pe=0.jpg" width="60%">
-Policy iteration with ![p_e=0](https://render.githubusercontent.com/render/math?math=p_e=0)
+<img src="result/img-022723%20policy%20reward%20pe=0.jpg" width="50%">
+Policy iteration with <img src="https://render.githubusercontent.com/render/math?math=p_e=0">
 
-<img src="result/img-024719%20value%20reward%20pe=0.jpg" width="60%">
-Value iteration with ![p_e=0](https://render.githubusercontent.com/render/math?math=p_e=0)
+<img src="result/img-024719%20value%20reward%20pe=0.jpg" width="50%">
+Value iteration with <img src="https://render.githubusercontent.com/render/math?math=p_e=0">
 
-<img src="result/img-032313%20policy%20reward%20pe=0.25.jpg" width="60%">
-Policy iteration with ![p_e=0.25](https://render.githubusercontent.com/render/math?math=p_e=0.25)
+<img src="result/img-032313%20policy%20reward%20pe=0.25.jpg" width="50%">
+Policy iteration with <img src="https://render.githubusercontent.com/render/math?math=p_e=0.25">
 
-<img src="result/img-034420%20value%20reward%20pe=0.25.jpg" width="60%">
-Value iteration with ![p_e=0.25](https://render.githubusercontent.com/render/math?math=p_e=0.25)
+<img src="result/img-034420%20value%20reward%20pe=0.25.jpg" width="50%">
+Value iteration with <img src="https://render.githubusercontent.com/render/math?math=p_e=0.25">
 
 <br>
 
-Full report: [report.pdf](lab_1_report.pdf)
+Full report see: [report.pdf](lab_1_report.pdf)
+
