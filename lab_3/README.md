@@ -22,19 +22,19 @@ The goal of this lab is to explore Kalman Filtering (KF) to estimate the state o
     - Define process noise <img src="https://render.githubusercontent.com/render/math?math=w_{1e},%20w_{2e}">, measurement noise <img src="https://render.githubusercontent.com/render/math?math=d_{1e},%20d_{2e},%20\theta_e,%20\omega_e">
     - Create a Kalman Filter (KF) based state estimator to take the motor commands and sensor measurements and generate a state estimate. Compare Extended Kalman Filter (EKF) and Unscented Kalman Filter (UKF).
     - Define linear approximation equations:
-    $$s_{t+1} = f(s_t, u_t, w_t) \approx F_ts_t + W_tw_t$$, 
-    $$y_t = h(s_t, v_t) \approx H_ts_t + V_tv_t$$
+    <img src="https://render.githubusercontent.com/render/math?math=s_{t%2b1}%20=%20f(s_t,%20u_t,%20w_t)%20\approx%20F_ts_t%2bW_tw_t">,
+    <img src="https://render.githubusercontent.com/render/math?math=y_t%20=%20h(s_t,%20v_t)%20\approx%20H_ts_t%2bV_tv_t">
     - Implement EKF time update:
-    $$s_{t+1}^{-} = f(s_t, u_t, 0)$$, 
-    $$P_{t+1}^{-} = F_tP_tF_t^T + W_tQ_tW_t^T$$
+    <img src="https://render.githubusercontent.com/render/math?math=s_{t%2b1}^{-}%20=%20f(s_t,%20u_t,%200)">,
+    <img src="https://render.githubusercontent.com/render/math?math=P_{t%2b1}^{-}%20=%20F_tP_tF_t^T%20%2b%20W_tQ_tW_t^T">
     - Implement EKF measurement update:
-    $$K_t = H_tP{t+1}^{-}H_t^T + R_t$$,
-    $$s_{t+1} = s_{t+1}^{-} + P_{t+1}^{-}H_t^TK_t^{-1}(y_t-h(s_{t+1}^{-}, 0))$$, 
-    $$P_{t+1} = P_{t+1}^{-} - P_{t+1}^{-}H_t^TK_t^{-1}H_tP_{t+1}^{-}$$
+    <img src="https://render.githubusercontent.com/render/math?math=K_t%20=%20H_tP_{t%2b1}^{-}H_t^T%20%2b%20R_t">,
+    <img src="https://render.githubusercontent.com/render/math?math=s_{t%2b1}%20=%20s_{t%2b1}^{-}%20+%20P_{t%2b1}^{-}H_t^TK_t^{-1}(y_t-h(s_{t%2b1}^{-},%200))">,
+    <img src="https://render.githubusercontent.com/render/math?math=P_{t%2b1}%20=%20P_{t%2b1}^{-}%20-%20P_{t%2b1}^{-}H_t^TK_t^{-1}H_tP_{t%2b1}^{-}">
 
 ### Evaluation
 
-<img src="img/original_traj.png" width="40%">
+<img src="img/original_traj.png" width="50%">
 Eight reference trajectories for evaluation and visualization
 
 To characterize the performance of the state estimator, we use mean error and std error between both real trajectory and estimated trajectory.
