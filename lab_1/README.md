@@ -1,3 +1,5 @@
+# Project 1: Markov Decision Process control of robot in a 2D grid world
+
 Main function: [MDP.py](MDP.py)
 
 Instruction: [instruction.pdf](lab_1_instruction.pdf)
