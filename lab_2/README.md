@@ -1,3 +1,5 @@
+# Project 2: RRT-based planer for getting a non-holonomic robot to desired goal states
+
 Main function: [RRT.py](RRT.py)
 
 Instruction: [instruction.pdf](lab_2_instruction.pdf)
