@@ -19,5 +19,5 @@
 - Two-wheeled robot with microcontroller in both ideal state and real state considered
 - Mathematical setup of the robot in a rectangular space:
 - Create a Kalman Filter based state estimator to generate a state estimate, based on motor commands and sensor measurements
-- Implemented an Unscented Kalman Filter (UKF)
+- Implemented an Extended Kalman Filter (EKF)
 - Evaluate the algorithms in simulated environments
