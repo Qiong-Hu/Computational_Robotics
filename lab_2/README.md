@@ -58,7 +58,7 @@ The goal of this lab is to explore build autonomy into a simple two-wheeled non-
 
 3. Visualization (RRT vs RRT\*)
 
-(red trajectory: RRT; blue trajectory: RRT\*)
+(blue trajectory: RRT; red trajectory: RRT\*)
 
 <img src="test_data/compared_img/img-2500-1000-0.jpg" width="30%"> <img src="test_data/compared_img/img-2500-1000-pi_2.jpg" width="30%"> <img src="test_data/compared_img/img-2500-1000--pi_2.jpg" width="30%">
 
