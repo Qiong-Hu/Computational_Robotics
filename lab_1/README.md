@@ -33,11 +33,11 @@ The goal of this lab is to explore Markov Decision Processes (MDPs) to control a
 
 (Left column: policy iteration; right column: value iteration)
 
-<img src="result/img-022723%20policy%20reward%20pe=0.jpg" width="50%"> <img src="result/img-024719%20value%20reward%20pe=0.jpg" width="50%">
+<img src="result/img-022723%20policy%20reward%20pe=0.jpg" width="40%"> <img src="result/img-024719%20value%20reward%20pe=0.jpg" width="40%">
 
 <img src="https://render.githubusercontent.com/render/math?math=p_e=0">
 
-<img src="result/img-032313%20policy%20reward%20pe=0.25.jpg" width="50%"> <img src="result/img-034420%20value%20reward%20pe=0.25.jpg" width="50%">
+<img src="result/img-032313%20policy%20reward%20pe=0.25.jpg" width="40%"> <img src="result/img-034420%20value%20reward%20pe=0.25.jpg" width="40%">
 
 <img src="https://render.githubusercontent.com/render/math?math=p_e=0.25">
 
