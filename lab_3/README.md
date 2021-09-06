@@ -63,25 +63,37 @@ To characterize the performance of the state estimator, we use mean error and st
 (Left column: perfect knowledge of the initial state; right column: no knowledge of the initial state)
 
 <img src="img/[100,100,0,0],all.png" width="40%"> <img src="img/[100,100,0,0],no.png" width="40%">
+
 Trajectory No.1: Straight forward line in the direction of +x.
 
 <img src="img/[100,100,0.5pi,0],all.png" width="40%"> <img src="img/[100,100,0.5pi,0],no.png" width="40%">
+
 Trajectory No.2: Straight line trajectory heading in the direction of +y.
 
 <img src="img/[200,200,0,0],all.png" width="40%"> <img src="img/[200,200,0,0],no.png" width="40%">
+
 Trajectory No.3: Clockwise circular trajectory.
 
 <img src="img/[200,200,0,0],1,all.png" width="40%"> <img src="img/[200,200,0,0],1,no.png" width="40%">
+
 Trajectory No.4: Counter-clockwise circular trajectory.
 
 <img src="img/[400,400,pi,0],all.png" width="40%"> <img src="img/[400,400,pi,0],no.png" width="40%">
+
 Trajectory No.5: Straight line heading in -x.
 
 <img src="img/[400,400,1.5pi,0],all.png" width="40%"> <img src="img/[400,400,1.5pi,0],no.png" width="40%">
+
 Trajectory No.6: Straight line heading in -y.
 
 <img src="img/[100,100,0.25pi,0],all.png" width="40%"> <img src="img/[100,100,0.25pi,0],no.png" width="40%">
+
 Trajectory No.7: Straight line heading in the direction 45° from +x.
 
 <img src="img/[300,300,0,0],all.png" width="40%"> <img src="img/[300,300,0,0],no.png" width="40%">
+
 Trajectory No.8: A complex trajectory.
+
+<br>
+
+Full report see: [report.pdf](lab_3_report.pdf)
