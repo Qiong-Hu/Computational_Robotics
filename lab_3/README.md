@@ -1,4 +1,4 @@
-# Project 3: Kalman Filter (KF) for robot state estimation
+# Project 3: Extended Kalman Filter (EKF) for robot state estimation
 
 Main function: [EKF.py](EKF.py)
 
