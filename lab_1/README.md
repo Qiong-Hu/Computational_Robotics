@@ -6,6 +6,8 @@ Instruction: [instruction.pdf](lab_1_instruction.pdf)
 
 Full report: [report.pdf](lab_1_report.pdf)
 
+Python package used in implementation: numpy, matplotlib
+
 <br>
 
 ### Objectives
